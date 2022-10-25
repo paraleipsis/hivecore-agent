@@ -42,6 +42,11 @@ class DockerStuff:
         response = [line for line in self.client.build(fileobj=f, rm=True, **kwargs)]
         self.client.close()
 
+    def remove_container(self, **kwargs):
+        #self.client.remove_container()
+        print(kwargs.items())
+        self.client.close()
+
     def create_container(self, **kwargs):
         """
         container will not run if image does not exist on local machine,
@@ -81,7 +86,6 @@ class DockerStuff:
         if 'ipv4_address' in kwargs.keys():
             net_dict['ipv4_address'] = kwargs.pop('ipv4_address')
 
-        print(kwargs)
 
         def docker_run():
             container = self.client.create_container(**kwargs, detach=True)
@@ -93,6 +97,7 @@ class DockerStuff:
             docker_run()
             self.client.close()
         except ImageNotFound:
+            # !!!add check for no tag (else it will pull all tags)
             self.client.pull(kwargs['image'])
             docker_run()
             self.client.close()

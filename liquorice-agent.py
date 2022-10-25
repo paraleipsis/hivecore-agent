@@ -30,6 +30,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         message = json.loads(self.rfile.read(length))
         message['date_ms'] = int(time.time()) * 1000
         data.append(message)
+        print(data)
         method = getattr(self.instance, data[0]['task'])
         method(**data[0]['params'])
         self._set_headers()
