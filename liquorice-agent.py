@@ -30,11 +30,10 @@ class _RequestHandler(BaseHTTPRequestHandler):
         message = json.loads(self.rfile.read(length))
         message['date_ms'] = int(time.time()) * 1000
         data.append(message)
-        print(data)
         method = getattr(self.instance, data[0]['task'])
-        method(**data[0]['params'])
+        response = method(**data[0]['params'])
         self._set_headers()
-        self.wfile.write(json.dumps({'success': True}).encode('utf-8'))
+        self.wfile.write(json.dumps(response).encode('utf-8'))
 
     def do_OPTIONS(self):
         # Send allow-origin header for preflight POST XHRs.

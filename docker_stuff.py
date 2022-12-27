@@ -1,11 +1,15 @@
 import docker
 from io import BytesIO
 from docker.errors import ImageNotFound
-
+from terminal_handler import TerminalStream
+import websockets
+import asyncio
+from threading import Thread
+import time
 
 class DockerStuff:
     def __init__(self):
-        self.client = docker.APIClient()
+        self.client = docker.APIClient(base_url='unix://var/run/docker.sock', tls=True)
 
     def docker_get_stuff(self):
         if self.client.info()['Swarm']['ControlAvailable']:
@@ -37,14 +41,116 @@ class DockerStuff:
         self.client.pull(image)
         self.client.close()
 
+    def tag_image(self, **kwargs):
+        # print(kwargs)
+        self.client.tag(**kwargs, force=False)
+        self.client.close()
+
     def image_build(self, fileobj, **kwargs):
         f = BytesIO(fileobj.encode('utf-8'))
         response = [line for line in self.client.build(fileobj=f, rm=True, **kwargs)]
         self.client.close()
 
+    def remove_image(self, **kwargs):
+        self.client.remove_image(**kwargs)
+        self.client.close()
+
+    # container signals
     def remove_container(self, **kwargs):
-        #self.client.remove_container()
-        print(kwargs.items())
+        self.client.remove_container(**kwargs)
+        print('remove', kwargs.items())
+        self.client.close()
+    
+    def stop_container(self, **kwargs):
+        self.client.stop(**kwargs)
+        print('stop', kwargs.items())
+        self.client.close()
+
+    def restart_container(self, **kwargs):
+        self.client.restart(**kwargs)
+        print('restart', kwargs.items())
+        self.client.close()
+
+    def kill_container(self, **kwargs):
+        self.client.kill(**kwargs)
+        print('kill', kwargs.items())
+        self.client.close()
+
+    def terminal_container(self, **kwargs):
+        execCommand = [
+            "/bin/sh",
+            "-c",
+            'TERM=xterm-256color; export TERM; [ -x /bin/bash ] && ([ -x /usr/bin/script ] && /usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) || exec /bin/sh']
+        exec_id = self.client.exec_create(container=kwargs['container'], cmd=execCommand, tty=True, stdin=True)['Id']
+        terminal_socket = self.client.exec_start(exec_id=exec_id, tty=True, socket=True, stream=True, demux=True)._sock
+
+        async def terminal(websocket):
+            await websocket.send(f"container {kwargs['container'][:13]}\r\n")
+            async for message in websocket:
+                    if message is not None:
+                        terminal_socket.send(bytes(message, encoding='utf8'))
+
+                    try:
+                        dockerStreamStdout = terminal_socket.recv(2048)
+
+                        if dockerStreamStdout is not None:
+
+                            await websocket.send(str(dockerStreamStdout, encoding='utf8'))
+
+                            if dockerStreamStdout == b'\r\n\x1b[?2004l\rexit\r\n':
+                                print("docker daemon socket is close")
+                                await websocket.close()
+                                asyncio.get_event_loop().stop()
+                                break
+
+                        else:
+                            print("docker daemon socket is close")
+                            await websocket.close()
+                            asyncio.get_event_loop().stop()
+                            break
+
+                    except UnicodeDecodeError as e:
+                        await websocket.send(dockerStreamStdout + b'\r\n')
+
+                    except Exception as e:
+                        await websocket.send(f"docker daemon socket err: {e}\r\n")
+                        print(f"docker daemon socket err: {e}")
+                        await websocket.close()
+                        asyncio.get_event_loop().stop()
+                        break
+
+
+        def run():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            websocket = websockets.serve(terminal, "0.0.0.0", 8003)
+            loop.run_until_complete(websocket)
+            loop.run_forever()
+            loop.close()
+
+        server = Thread(target=run, daemon=True)
+        server.start()
+        
+
+    # pause ps inside container
+    def pause_container(self, **kwargs):
+        self.client.pause(**kwargs)
+        print('pause', kwargs.items())
+        self.client.close()
+
+    # unpause ps inside container
+    def resume_container(self, **kwargs):
+        self.client.unpause(**kwargs)
+        print('resume', kwargs.items())
+        self.client.close()
+
+    def start_container(self, **kwargs):
+        self.client.start(**kwargs)
+        print('start', kwargs.items())
+        self.client.close()
+
+    def prune_images(self):
+        self.client.prune_images(filters={'dangling': True})
         self.client.close()
 
     def create_container(self, **kwargs):
