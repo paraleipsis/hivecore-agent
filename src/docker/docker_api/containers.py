@@ -1,3 +1,4 @@
+from aiodocker import DockerError
 from aiodocker.channel import ChannelSubscriber
 from aiodocker.containers import DockerContainer
 from aiodocker.docker import Docker
@@ -12,10 +13,33 @@ from typing import List, Mapping, Optional, MutableMapping
 from docker.docker_api.stats import DockerStats
 
 
+async def list_containers(docker_session: Docker, list_all: bool = False, size: bool = False,
+                          filters: Mapping = None) -> List[Mapping]:
+    params = {"filters": clean_filters(filters), "all": list_all, "size": size}
+    containers = await docker_session._query_json("containers/json", method="GET", params=params)
+    return containers
+
+
+async def inspect_container(docker_session: Docker, container_id: str, size: bool = False) -> MutableMapping:
+    params = {"size": size}
+    container = await docker_session._query_json(
+        "containers/{container_id}/json".format(container_id=container_id),
+        method="GET",
+        params=params
+    )
+    return container
+
+
 async def get_containers(docker_session: Docker) -> List[Mapping]:
-    containers = docker_session.containers
-    containers_details_list = [await DockerContainer(docker=docker_session, id=c['Id']).show()
-                               for c in await containers.list(all=True)]
+    containers = await list_containers(docker_session=docker_session, list_all=True)
+    containers_details_list = [
+        await inspect_container(
+            docker_session=docker_session,
+            container_id=c['Id'],
+            size=True
+        )
+        for c in containers
+    ]
 
     return containers_details_list
 
@@ -100,13 +124,15 @@ async def container_terminal(docker_session: Docker, container_id: str) -> Strea
     return exec_instance.start()
 
 
-async def container_attach(docker_session: Docker, container_id: str):
+async def attach_container(docker_session: Docker, container_id: str):
     pass
 
 
+async def create_container(docker_session: Docker, container_id: str):
+    pass
+
 
 # import asyncio
-# from client import async_docker
 #
 #
 # async def main():
@@ -119,8 +145,8 @@ async def container_attach(docker_session: Docker, container_id: str):
         # c = await prune_containers(docker_session=session)
         # c = await start_container(docker_session=session, container_id='b3d88d8ce56')
         # c = await restart_container(docker_session=session, container_id='f1a64b9ca037')
-
-        #logs
+        #
+        # logs
         # logs_subscriber = container_logs_subscriber(docker_session=session, container_id='da', stdout=True, stderr=True, follow=True)
         # while True:
         #     message = await logs_subscriber.get()
@@ -128,7 +154,7 @@ async def container_attach(docker_session: Docker, container_id: str):
         #         break
         #     print(message)
         # return None
-
+        #
         # #stats
         # stats_subscriber = container_stats_subscriber(docker_session=session, container_id='f27')
         # while True:
@@ -137,7 +163,12 @@ async def container_attach(docker_session: Docker, container_id: str):
         #         break
         #     print(message)
         # return None
-
-    # return c
-
+#         try:
+#             c = await inspect_container(docker_session=session, container_id='s')
+#         except DockerError as e:
+#             return e.status, e.message
+#
+#
+#     return c
+#
 # print(asyncio.run(main()))
