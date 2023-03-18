@@ -1,14 +1,16 @@
-from aiodocker import DockerError
+from aiodocker import DockerError, DockerContainerError
 from aiodocker.channel import ChannelSubscriber
-from aiodocker.containers import DockerContainer
+from aiodocker.containers import DockerContainer, DockerContainers
 from aiodocker.docker import Docker
 from aiodocker.execs import Exec
 from aiodocker.stream import Stream
+from aiohttp.web_ws import WebSocketResponse
 
+from docker.docker_api.images import pull_image
 from docker.docker_api.logs import DockerLogs
 from aiodocker.utils import clean_filters
 
-from typing import List, Mapping, Optional, MutableMapping
+from typing import List, Mapping, Optional, MutableMapping, Union
 
 from docker.docker_api.stats import DockerStats
 
@@ -44,8 +46,27 @@ async def get_containers(docker_session: Docker) -> List[Mapping]:
     return containers_details_list
 
 
-async def run_container(docker_session: Docker, config: Mapping, name: Optional[str] = None) -> DockerContainer:
-    container = await docker_session.containers.run(name=name, config=config)
+async def run_container(docker_session: Docker, config, auth: Optional[Union[Mapping, str, bytes]] = None,
+                        name: Optional[str] = None) -> DockerContainer:
+    try:
+        container = await create_container(docker_session=docker_session, config=config, name=name)
+    except DockerError as err:
+        # image not found, try pulling it
+        if err.status == 404 and "Image" in config:
+            tag = None
+            if ":" in config["Image"]:
+                tag = config["Image"].split(":")[1]
+            await pull_image(from_image=config["Image"], tag=tag, docker_session=docker_session, auth=auth)
+            container = await create_container(docker_session=docker_session, config=config, name=name)
+        else:
+            raise err
+
+    try:
+        await container.start()
+    except DockerError as err:
+        raise DockerContainerError(
+            err.status, {"message": err.message}, container["id"]
+        )
 
     return container
 
@@ -104,6 +125,18 @@ def container_stats_subscriber(docker_session: Docker, container_id: str) -> Cha
     return stats_subscriber
 
 
+async def read_terminal(terminal_session: Stream, ws: WebSocketResponse):
+    while not ws.closed:
+        output = await terminal_session.read_out()
+        await ws.send_str(str(output.data, encoding='utf8'))
+
+
+async def write_terminal(terminal_session: Stream, ws: WebSocketResponse):
+    async for msg in ws:
+        cmd = bytes(msg.data + '\r\n', encoding='utf8')
+        await terminal_session.write_in(cmd)
+
+
 async def container_terminal(docker_session: Docker, container_id: str) -> Stream:
     params = {"AttachStdin": True,
               "AttachStdout": True,
@@ -124,51 +157,28 @@ async def container_terminal(docker_session: Docker, container_id: str) -> Strea
     return exec_instance.start()
 
 
+async def create_container(docker_session: Docker, config, name=None) -> DockerContainer:
+    container = await DockerContainers(docker=docker_session).create(config=config, name=name)
+    return container
+
+
 async def attach_container(docker_session: Docker, container_id: str):
-    pass
-
-
-async def create_container(docker_session: Docker, container_id: str):
     pass
 
 
 # import asyncio
 #
-#
 # async def main():
 #     async with Docker() as session:
-        # c = await remove_container(docker_session=session, container_id='8bffe324a788', force=True)
-        # c = await run_container(docker_session=session, config={
-        #         'Cmd': ['/bin/ash', '-c', 'echo "hello world"'],
-        #         'Image': 'alpine:latest',
-        #     })
-        # c = await prune_containers(docker_session=session)
-        # c = await start_container(docker_session=session, container_id='b3d88d8ce56')
-        # c = await restart_container(docker_session=session, container_id='f1a64b9ca037')
-        #
-        # logs
-        # logs_subscriber = container_logs_subscriber(docker_session=session, container_id='da', stdout=True, stderr=True, follow=True)
-        # while True:
-        #     message = await logs_subscriber.get()
-        #     if message is None:
-        #         break
-        #     print(message)
-        # return None
-        #
-        # #stats
-        # stats_subscriber = container_stats_subscriber(docker_session=session, container_id='f27')
-        # while True:
-        #     message = await stats_subscriber.get()
-        #     if message is None:
-        #         break
-        #     print(message)
-        # return None
-#         try:
-#             c = await inspect_container(docker_session=session, container_id='s')
-#         except DockerError as e:
-#             return e.status, e.message
+#         # logs
+#         logs_subscriber = container_logs_subscriber(docker_session=session, container_id='da', stdout=True, stderr=True, follow=True)
+#         while True:
+#             message = await logs_subscriber.get()
+#             if message is None:
+#                 break
+#             print(message)
+#         return None
 #
-#
-#     return c
+#     # return c
 #
 # print(asyncio.run(main()))

@@ -4,14 +4,17 @@
 # попытаться сделать пару запросов и посмотреть результат
 # если оба запроса выполнятся за одинаковое время знаичт все ок
 # если нет значит идет выполнение сначала одного запроса потом второго - думать над другим решением
-from typing import Mapping, MutableMapping, List
+import asyncio
+from typing import Mapping, MutableMapping, List, Optional, Union
 
 from aiodocker import DockerError, Docker
 from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from docker.docker_api import containers
 from docker import schemas
-from aiohttp_pydantic.oas.typing import r200, r201, r204, r404
+from aiohttp_pydantic.oas.typing import r200
+
+from docker.schemas import ContainerCreate
 
 
 class ContainerCollectionView(PydanticView):
@@ -39,7 +42,7 @@ class ContainerCollectionView(PydanticView):
         except Exception as e:
             return web.json_response(
                 status=500,
-                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+                data=schemas.GenericResponseModel(success=False, error_msg=str(e)).dict()
             )
 
 
@@ -121,9 +124,31 @@ class ContainerInspectView(PydanticView):
 
 
 class ContainerRunView(PydanticView):
-
-    async def post(self):  # run
-        return
+    async def post(self, config: ContainerCreate, name: Optional[str] = None,
+                   auth: Optional[Union[Mapping, str, bytes]] = None) -> r200[schemas.GenericResponseModel[str]]:
+        try:
+            async with Docker() as session:
+                data = await containers.run_container(
+                    docker_session=session,
+                    config=config.dict(),
+                    auth=auth,
+                    name=name
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data.id,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
 
 class ContainerPruneView(PydanticView):
@@ -152,57 +177,254 @@ class ContainerPruneView(PydanticView):
 
 
 class ContainerStartView(PydanticView):
-
-    async def post(self):
-        return
+    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+        try:
+            async with Docker() as session:
+                data = await containers.start_container(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
 
 class ContainerStopView(PydanticView):
-
-    async def post(self):
-        return
+    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+        try:
+            async with Docker() as session:
+                data = await containers.stop_container(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
 
 class ContainerRestartView(PydanticView):
-
-    async def post(self):
-        return
+    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+        try:
+            async with Docker() as session:
+                data = await containers.restart_container(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
 
 class ContainerPauseView(PydanticView):
-
-    async def post(self):
-        return
+    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+        try:
+            async with Docker() as session:
+                data = await containers.pause_container(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
 
 class ContainerUnpauseView(PydanticView):
-
-    async def post(self):
-        return
+    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+        try:
+            async with Docker() as session:
+                data = await containers.unpause_container(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
 
 class ContainerKillView(PydanticView):
+    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+        try:
+            async with Docker() as session:
+                data = await containers.kill_container(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                return web.json_response(
+                    data=schemas.GenericResponseModel(
+                        data=data,
+                    ).dict()
+                )
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
 
-    async def post(self):
-        return
+
+class ContainerLogsView(PydanticView):
+    async def get(self, container_id: str, /):
+        ws = web.WebSocketResponse()
+        await ws.prepare(self.request)
+        # self.request.app['websockets'].append(ws)
+
+        try:
+            async with Docker() as session:
+                logs_subscriber = containers.container_logs_subscriber(
+                    docker_session=session,
+                    container_id=container_id,
+                    stdout=True,
+                    stderr=True,
+                    follow=True
+                )
+                while True:
+                    message = await logs_subscriber.get()
+                    if message is None:
+                        break
+                    await ws.send_str(str(message))
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
+        finally:
+            await ws.close()
+            # self.request.app['websockets'].remove(ws)
+            return ws
 
 
-class ContainerLogsView(PydanticView): # ws
+class ContainerStatsView(PydanticView):
+    async def get(self, container_id: str, /):
+        ws = web.WebSocketResponse()
+        await ws.prepare(self.request)
+        # self.request.app['websockets'].append(ws)
 
-    async def get(self):
-        return
+        try:
+            async with Docker() as session:
+                stats_subscriber = containers.container_stats_subscriber(
+                    docker_session=session,
+                    container_id=container_id,
+                )
+                while True:
+                    message = await stats_subscriber.get()
+                    if message is None:
+                        break
+                    await ws.send_str(str(message))
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
+        finally:
+            await ws.close()
+            # self.request.app['websockets'].remove(ws)
+            return ws
 
 
-class ContainerStatsView(PydanticView): # ws
+class ContainerTerminalView(PydanticView):
+    async def get(self, container_id: str, /):
+        ws = web.WebSocketResponse()
+        await ws.prepare(self.request)
+        # self.request.app['websockets'].append(ws)
 
-    async def get(self):
-        return
-
-
-class ContainerTerminalView(PydanticView): # ws
-
-    async def get(self):
-        return
+        try:
+            async with Docker() as session:
+                terminal_session = await containers.container_terminal(
+                    docker_session=session,
+                    container_id=container_id
+                )
+                async with terminal_session as terminal:
+                    task1 = asyncio.create_task(containers.read_terminal(terminal_session=terminal, ws=ws))
+                    task2 = asyncio.create_task(containers.write_terminal(terminal_session=terminal, ws=ws))
+                    await asyncio.gather(task1, task2)
+        except DockerError as de:
+            return web.json_response(
+                status=de.status,
+                data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
+            )
+        except Exception as e:
+            return web.json_response(
+                status=500,
+                data=schemas.GenericResponseModel(success=False, error_msg=e).dict()
+            )
+        finally:
+            await ws.close()
+            # self.request.app['websockets'].remove(ws)
+            return ws
 
 
 class ContainerAttachView(PydanticView): # ws

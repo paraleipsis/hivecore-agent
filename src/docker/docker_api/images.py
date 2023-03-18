@@ -64,9 +64,10 @@ async def search_image(docker_session: Docker):
 #
 #
 # async def main():
-#     async with Docker() as session:
-#         c = await get_images(docker_session=session)
-#
+#     # async with Docker() as session:
+#     #     c = await pull_image(docker_session=session, from_image='nginx', tag='alpine')
+#     image = 'nginx'
+#     c = image.split(":")[1]
 #     return c
 #
 # print(asyncio.run(main()))
