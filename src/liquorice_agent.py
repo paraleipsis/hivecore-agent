@@ -1,8 +1,11 @@
 from aiohttp import web
-from docker.views import (ContainerCollectionView, ContainerInspectView, ContainerLogsView, ContainerStatsView,
-                          ContainerCollectionInspectView, ContainerPruneView, ContainerRunView, ContainerTerminalView,
-                          ContainerKillView, ContainerStopView, ContainerPauseView, ContainerRestartView,
-                          ContainerStartView, ContainerUnpauseView)
+from docker.views.containers_views import (ContainerCollectionView, ContainerInspectView,
+                                           ContainerLogsView, ContainerStatsView,
+                                           ContainerCollectionInspectView, ContainerPruneView,
+                                           ContainerRunView, ContainerTerminalView,
+                                           ContainerKillView, ContainerStopView,
+                                           ContainerPauseView, ContainerRestartView,
+                                           ContainerStartView, ContainerUnpauseView)
 
 app = web.Application()
 

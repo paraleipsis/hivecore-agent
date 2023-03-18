@@ -1,15 +1,15 @@
 import asyncio
+
 from typing import Mapping, MutableMapping, List, Optional, Union
 
 from aiodocker import Docker
 from aiohttp import web
 from aiohttp_pydantic import PydanticView
-from docker.docker_api import containers
-from docker import schemas
 from aiohttp_pydantic.oas.typing import r200
 
-from docker.schemas import ContainerCreate
-
+from docker.docker_api import containers
+from docker.schemas import containers_schemas
+from docker.schemas import schemas
 from docker.utils import manage_exceptions
 
 
@@ -81,7 +81,7 @@ class ContainerInspectView(PydanticView):
 
 class ContainerRunView(PydanticView):
     @manage_exceptions
-    async def post(self, config: ContainerCreate, name: Optional[str] = None,
+    async def post(self, config: containers_schemas.ContainerCreate, name: Optional[str] = None,
                    auth: Optional[Union[Mapping, str, bytes]] = None) -> r200[schemas.GenericResponseModel[str]]:
         async with Docker() as session:
             data = await containers.run_container(
