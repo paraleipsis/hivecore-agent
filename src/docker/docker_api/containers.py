@@ -146,7 +146,8 @@ async def container_terminal(docker_session: Docker, container_id: str) -> Strea
                     "/bin/sh",
                     "-c",
                     'TERM=xterm-256color; export TERM; '
-                    '[ -x /bin/bash ] && ([ -x /usr/bin/script ] && /usr/bin/script -q -c "/bin/bash" /dev/null || '
+                    '[ -x /bin/bash ] && ([ -x /usr/bin/script ] && '
+                    '/usr/bin/script -q -c "/bin/bash" /dev/null || '
                     'exec /bin/bash) || exec /bin/sh']}
     exec_create = await docker_session._query_json(
         "containers/{container_id}/exec".format(container_id=container_id),

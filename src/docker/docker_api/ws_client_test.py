@@ -8,7 +8,7 @@ PORT = int(os.getenv('PORT', 8080))
 
 # URL = f'http://{HOST}:{PORT}/ws'
 # URL = f'http://{HOST}:{PORT}/containers'
-# URL = f'http://{HOST}:{PORT}/containers/{"56957306c085"}'
+# URL = f'http://{HOST}:{PORT}/containers/{"56956c085"}'
 # URL = f'http://{HOST}:{PORT}/containers/inspect'
 # URL = f'http://{HOST}:{PORT}/containers/prune'
 # URL = f'http://{HOST}:{PORT}/containers/run'
@@ -34,7 +34,7 @@ async def main():
     # data = {'Image': 'nginx', 'Volumes': ['/tmp', '/mnt']}
     # data = json.dumps(data)
     # async with session as s:
-    #     r = await s.post(URL, params=params, data=data)
+    #     r = await s.get(URL)
     # return await r.text()
 
     async with session.ws_connect(URL) as ws:
