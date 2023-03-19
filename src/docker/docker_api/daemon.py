@@ -1,13 +1,15 @@
+import json
+
 from aiodocker.channel import ChannelSubscriber
 from aiodocker.events import DockerEvents
 from aiodocker.docker import Docker
 
 from typing import Mapping
 
-from images import prune_images
-from containers import prune_containers
-from networks import prune_networks
-from volumes import prune_volumes
+from docker.docker_api.images import prune_images
+from docker.docker_api.containers import prune_containers
+from docker.docker_api.networks import prune_networks
+from docker.docker_api.volumes import prune_volumes
 
 from collections import ChainMap
 
@@ -39,16 +41,20 @@ async def prune_system(docker_session: Docker, volumes: bool = False) -> Mapping
     return result
 
 
-async def get_system_df(docker_session: Docker):
-    pass
+async def get_system_df(docker_session: Docker) -> Mapping:
+    system_df = await docker_session._query_json("system/df", "GET")
+    return system_df
 
 
-async def docker_login(docker_session: Docker):
-    pass
+async def docker_login(docker_session: Docker, credentials: Mapping) -> Mapping:
+    credentials = json.dumps(credentials, sort_keys=True).encode("utf-8")
+    auth = await docker_session._query_json("auth", "POST", data=credentials)
+    return auth
 
 
-async def get_version(docker_session: Docker):
-    pass
+async def get_version(docker_session: Docker) -> Mapping:
+    data = await docker_session._query_json("version", "GET")
+    return data
 
 
 

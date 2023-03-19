@@ -7,6 +7,17 @@ from typing import List, Mapping, MutableMapping
 from operator import itemgetter
 
 
+async def list_volumes(docker_session: Docker, filters: Mapping = None) -> List[Mapping]:
+    params = {"filters": clean_filters(filters)}
+    volumes = await docker_session._query_json("volumes", "GET", params=params)
+    return volumes
+
+
+async def inspect_volume(docker_session: Docker, volume_id: str) -> List[Mapping]:
+    volume = await docker_session._query_json("volumes/{volume_id}".format(volume_id=volume_id), "GET")
+    return volume
+
+
 async def get_volumes(docker_session: Docker) -> List[Mapping]:
     volumes = docker_session.volumes
     volumes, warnings = itemgetter('Volumes', 'Warnings')(await volumes.list())
@@ -28,6 +39,6 @@ async def prune_volumes(docker_session: Docker, filters: Mapping = None) -> Muta
     return response
 
 
-async def remove_volume(docker_session: Docker, name: str) -> bool:
-    await DockerVolume(docker=docker_session, name=name).delete()
+async def remove_volume(docker_session: Docker, volume_id: str) -> bool:
+    await DockerVolume(docker=docker_session, name=volume_id).delete()
     return True

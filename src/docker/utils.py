@@ -3,7 +3,7 @@ import functools
 from aiodocker import DockerError
 from aiohttp import web
 
-from docker import schemas
+from docker.schemas import schemas
 
 
 def manage_exceptions(func):

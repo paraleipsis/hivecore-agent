@@ -1,29 +1,34 @@
+import pathlib
+
 from aiohttp import web
-from docker.views.containers_views import (ContainerCollectionView, ContainerInspectView,
-                                           ContainerLogsView, ContainerStatsView,
-                                           ContainerCollectionInspectView, ContainerPruneView,
-                                           ContainerRunView, ContainerTerminalView,
-                                           ContainerKillView, ContainerStopView,
-                                           ContainerPauseView, ContainerRestartView,
-                                           ContainerStartView, ContainerUnpauseView)
+from config.utils import load_config
 
-app = web.Application()
+BASE_DIR = pathlib.Path(__file__).parent
 
-app.router.add_view('/containers', ContainerCollectionView)
-app.router.add_view('/containers/inspect', ContainerCollectionInspectView)
-app.router.add_view('/containers/prune', ContainerPruneView)
-app.router.add_view('/containers/run', ContainerRunView)
-app.router.add_view('/containers/{container_id}', ContainerInspectView)
 
-app.router.add_view('/containers/{container_id}/kill', ContainerKillView)
-app.router.add_view('/containers/{container_id}/stop', ContainerStopView)
-app.router.add_view('/containers/{container_id}/pause', ContainerPauseView)
-app.router.add_view('/containers/{container_id}/restart', ContainerRestartView)
-app.router.add_view('/containers/{container_id}/start', ContainerStartView)
-app.router.add_view('/containers/{container_id}/unpause', ContainerUnpauseView)
+def setup_routes(application):
+    from docker.router import setup_routes as setup_docker_routes
 
-app.router.add_view('/containers/{container_id}/logs', ContainerLogsView)
-app.router.add_view('/containers/{container_id}/terminal', ContainerTerminalView)
-app.router.add_view('/containers/{container_id}/stats', ContainerStatsView)
+    setup_docker_routes(application)
 
-web.run_app(app)
+
+def init():
+    conf = load_config(BASE_DIR / 'config' / 'config.yml')
+
+    app = web.Application()
+
+    setup_routes(app)
+
+    host, port = conf['host'], conf['port']
+    return app, host, port
+
+
+def main():
+    # logging.basicConfig(level=logging.DEBUG)
+
+    app, host, port = init()
+    web.run_app(app, host=host, port=port)
+
+
+if __name__ == '__main__':
+    main()
