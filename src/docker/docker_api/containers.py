@@ -46,7 +46,7 @@ async def get_containers(docker_session: Docker) -> List[Mapping]:
     return containers_details_list
 
 
-async def run_container(docker_session: Docker, config, auth: Optional[Union[Mapping, str, bytes]] = None,
+async def run_container(docker_session: Docker, config: Mapping, auth: Optional[Union[Mapping, str, bytes]] = None,
                         name: Optional[str] = None) -> DockerContainer:
     try:
         container = await create_container(docker_session=docker_session, config=config, name=name)
@@ -158,7 +158,7 @@ async def container_terminal(docker_session: Docker, container_id: str) -> Strea
     return exec_instance.start()
 
 
-async def create_container(docker_session: Docker, config, name=None) -> DockerContainer:
+async def create_container(docker_session: Docker, config: Mapping, name=None) -> DockerContainer:
     container = await DockerContainers(docker=docker_session).create(config=config, name=name)
     return container
 

@@ -8,8 +8,10 @@ BASE_DIR = pathlib.Path(__file__).parent
 
 def setup_routes(application):
     from docker.router import setup_routes as setup_docker_routes
+    from swarm.router import setup_routes as setup_swarm_routes
 
     setup_docker_routes(application)
+    setup_swarm_routes(application)
 
 
 def init():

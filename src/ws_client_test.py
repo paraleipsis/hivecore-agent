@@ -17,7 +17,14 @@ PORT = int(os.getenv('PORT', 8080))
 # URL = f'http://{HOST}:{PORT}/containers/{"3442403c99f2"}/stats'
 # URL = f'http://{HOST}:{PORT}/images/build'
 # URL = f'http://{HOST}:{PORT}/system/events'
-URL = f'http://{HOST}:{PORT}/system'
+# URL = f'http://{HOST}:{PORT}/system'
+# URL = f'http://{HOST}:{PORT}/configs'
+# URL = f'http://{HOST}:{PORT}/configs/{"t1nmsre34i5a5akrg4ny8tozi"}'
+# URL = f'http://{HOST}:{PORT}/configs/djyhnnimtlyy0tjqbg8reyni2'
+# URL = f'http://{HOST}:{PORT}/configs/create'
+# URL = f'http://{HOST}:{PORT}/nodes/7k71b12z1a9wz38yb9ae0zyfl/update'
+URL = f'http://{HOST}:{PORT}/services/s85k4pt1npluw0pjn1pnw62es/logs'
+# URL = f'http://{HOST}:{PORT}/services/create'
 
 
 async def read_terminal(ws):
@@ -40,22 +47,22 @@ async def main():
     # CMD ["/bin/sh"]
     # '''
     #
-    # # params = {'name': 'nginx-test'}
-    # data = {'fileobj': dockerfile, 'encoding': 'utf-8'}
+    # data = {"name": "test-service", "task_template": {"ContainerSpec": {"Image": "redis"}}}
     # data = json.dumps(data)
-    async with session as s:
-        r = await s.get(URL)
-    return await r.text()
+    # async with session as s:
+    #     # r = await s.get(URL)
+    #     r = await s.post(URL, data=data)
+    # return await r.text()
 
-    # async with session.ws_connect(URL) as ws:
-    #     # logs, stats test
-    #     async for msg in ws:
-    #         if msg.type == aiohttp.WSMsgType.TEXT:
-    #             await callback(msg.data)
-    #         elif msg.type == aiohttp.WSMsgType.CLOSED:
-    #             break
-    #         elif msg.type == aiohttp.WSMsgType.ERROR:
-    #             break
+    async with session.ws_connect(URL) as ws:
+        # logs, stats test
+        async for msg in ws:
+            if msg.type == aiohttp.WSMsgType.TEXT:
+                await callback(msg.data)
+            elif msg.type == aiohttp.WSMsgType.CLOSED:
+                break
+            elif msg.type == aiohttp.WSMsgType.ERROR:
+                break
 
         # terminal test
         # async for msg in ws:

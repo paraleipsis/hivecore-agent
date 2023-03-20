@@ -1,64 +1,68 @@
-from typing import MutableMapping, List
+from typing import Mapping, MutableMapping, List
 
 from aiodocker import Docker
 from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
-from docker.docker_api import daemon
-from docker.schemas import schemas, system_schemas
-from docker.utils import manage_exceptions
+from swarm.swarm_api import services
+from swarm.schemas import services_schemas, schemas
+from swarm.utils import manage_exceptions
 
 
-class SystemInfoView(PydanticView):
+class ServiceCollectionView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(self, filters: Mapping = None,
+                  status: bool = False) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
-            info = await daemon.get_system(
+            services_list = await services.list_services(
                 docker_session=session,
+                filters=filters,
+                status=status
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
-                    data=info
+                    data=services_list,
+                    total=len(services_list)
                 ).dict()
             )
 
 
-class VersionView(PydanticView):
+class ServiceCollectionInspectView(PydanticView):
     @manage_exceptions
     async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
-            info = await daemon.get_version(
+            services_details_list = await services.get_services(
                 docker_session=session,
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
-                    data=info
+                    data=services_details_list,
+                    total=len(services_details_list)
                 ).dict()
             )
 
 
-class SystemDataUsageView(PydanticView):
+class ServiceInspectView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(self, service_id: str, /) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
-            info = await daemon.get_system_df(
+            service_details = await services.inspect_service(
                 docker_session=session,
+                service_id=service_id,
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
-                    data=info
+                    data=service_details,
                 ).dict()
             )
 
-
-class SystemPruneView(PydanticView):
     @manage_exceptions
-    async def post(self, volumes: bool = False) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def delete(self, service_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
-            data = await daemon.prune_system(
+            data = await services.remove_service(
                 docker_session=session,
-                volumes=volumes
+                service_id=service_id
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
@@ -67,16 +71,13 @@ class SystemPruneView(PydanticView):
             )
 
 
-class AuthView(PydanticView):
+class ServiceCreateView(PydanticView):
     @manage_exceptions
-    async def post(
-            self,
-            credentials: system_schemas.AuthCredentials
-    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def post(self, config: services_schemas.ServiceCreate) -> r200[schemas.GenericResponseModel[Mapping]]:
         async with Docker() as session:
-            data = await daemon.docker_login(
+            data = await services.create_service(
                 docker_session=session,
-                credentials=credentials.dict()
+                config=config.dict(),
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
@@ -85,19 +86,23 @@ class AuthView(PydanticView):
             )
 
 
-class SystemEventsView(PydanticView):
+class ServiceLogsView(PydanticView):
     @manage_exceptions
-    async def get(self):
+    async def get(self, service_id: str, /):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
 
         try:
             async with Docker() as session:
-                events_subscriber = daemon.docker_events_subscriber(
-                    docker_session=session
+                logs_subscriber = services.service_logs_subscriber(
+                    docker_session=session,
+                    service_id=service_id,
+                    stdout=True,
+                    stderr=True,
+                    follow=True
                 )
                 while True:
-                    message = await events_subscriber.get()
+                    message = await logs_subscriber.get()
                     if message is None:
                         break
                     await ws.send_str(str(message))
