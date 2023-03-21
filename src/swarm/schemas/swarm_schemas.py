@@ -1,23 +1,32 @@
 from pydantic import BaseModel
-from typing import Optional, Mapping
+from typing import Optional, Mapping, List
 
 
 class SwarmInit(BaseModel):
-    Name: str
-    Labels: Optional[Mapping]
-    Data: str
-    Templating: Optional[Mapping]
+    ListenAddr: str = '0.0.0.0:2377'
+    AdvertiseAddr: Optional[str]
+    DataPathAddr: Optional[str]
+    DataPathPort: Optional[int]
+    DefaultAddrPool: Optional[List[str]]
+    ForceNewCluster: Optional[bool]
+    SubnetSize: Optional[int]
+    Spec: Optional[Mapping]
 
 
 class SwarmJoin(BaseModel):
-    Name: str
-    Labels: Optional[Mapping]
-    Data: str
-    Templating: Optional[Mapping]
+    ListenAddr: str = '0.0.0.0:2377'
+    AdvertiseAddr: Optional[str]
+    DataPathAddr: Optional[str]
+    RemoteAddrs: List[str]
+    JoinToken: str
 
 
 class SwarmUpdate(BaseModel):
-    Name: str
+    Name: Optional[str]
     Labels: Optional[Mapping]
-    Data: str
-    Templating: Optional[Mapping]
+    Orchestration: Optional[Mapping]
+    Raft: Optional[Mapping]
+    Dispatcher: Optional[Mapping]
+    CAConfig: Optional[Mapping]
+    EncryptionConfig: Optional[Mapping]
+    TaskDefaults: Optional[Mapping]

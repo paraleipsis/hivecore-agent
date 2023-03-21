@@ -23,8 +23,10 @@ PORT = int(os.getenv('PORT', 8080))
 # URL = f'http://{HOST}:{PORT}/configs/djyhnnimtlyy0tjqbg8reyni2'
 # URL = f'http://{HOST}:{PORT}/configs/create'
 # URL = f'http://{HOST}:{PORT}/nodes/7k71b12z1a9wz38yb9ae0zyfl/update'
-URL = f'http://{HOST}:{PORT}/services/s85k4pt1npluw0pjn1pnw62es/logs'
+# URL = f'http://{HOST}:{PORT}/services/s85k4pt1npluw0pjn1pnw62es/logs'
 # URL = f'http://{HOST}:{PORT}/services/create'
+# URL = f'http://{HOST}:{PORT}/swarm'
+URL = f'http://{HOST}:{PORT}/swarm/init'
 
 
 async def read_terminal(ws):
@@ -47,22 +49,22 @@ async def main():
     # CMD ["/bin/sh"]
     # '''
     #
-    # data = {"name": "test-service", "task_template": {"ContainerSpec": {"Image": "redis"}}}
-    # data = json.dumps(data)
-    # async with session as s:
-    #     # r = await s.get(URL)
-    #     r = await s.post(URL, data=data)
-    # return await r.text()
+    data = {"name": "test-service", "task_template": {"ContainerSpec": {"Image": "redis"}}}
+    data = json.dumps(data)
+    async with session as s:
+        # r = await s.get(URL)
+        r = await s.post(URL, data=data)
+    return await r.text()
 
-    async with session.ws_connect(URL) as ws:
-        # logs, stats test
-        async for msg in ws:
-            if msg.type == aiohttp.WSMsgType.TEXT:
-                await callback(msg.data)
-            elif msg.type == aiohttp.WSMsgType.CLOSED:
-                break
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                break
+    # async with session.ws_connect(URL) as ws:
+    #     # logs, stats test
+    #     async for msg in ws:
+    #         if msg.type == aiohttp.WSMsgType.TEXT:
+    #             await callback(msg.data)
+    #         elif msg.type == aiohttp.WSMsgType.CLOSED:
+    #             break
+    #         elif msg.type == aiohttp.WSMsgType.ERROR:
+    #             break
 
         # terminal test
         # async for msg in ws:

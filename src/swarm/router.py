@@ -1,4 +1,4 @@
-from swarm.views import configs_views, nodes_views, services_views, tasks_views
+from swarm.views import configs_views, nodes_views, services_views, tasks_views, swarm_views
 
 
 def setup_routes(app):
@@ -39,3 +39,8 @@ def setup_routes(app):
     app.router.add_view('/nodes/{node_id}/update', nodes_views.NodeUpdateView)
 
     # swarm
+    app.router.add_view('/swarm', swarm_views.SwarmInspectView)
+    app.router.add_view('/swarm/init', swarm_views.SwarmInitView)
+    app.router.add_view('/swarm/join', swarm_views.SwarmJoinView)
+    app.router.add_view('/swarm/leave', swarm_views.SwarmLeaveView)
+    app.router.add_view('/swarm/update', swarm_views.SwarmUpdateView)
