@@ -1,2 +1,8 @@
-host: 127.0.0.1
+host: 0.0.0.0
 port: 8080
+
+ssh_client_remote_host: 193.33.194.89
+ssh_client_remote_port: 8022
+ssh_server_host_keys_paths: ''
+ssh_authorized_client_keys_path: ''
+ssh_encoding: 'utf8'

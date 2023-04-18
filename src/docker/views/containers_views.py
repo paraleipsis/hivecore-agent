@@ -24,11 +24,12 @@ class ContainerCollectionView(PydanticView):
                 size=size,
                 filters=filters
             )
+            print(containers_list)
             return web.json_response(
                 data=schemas.GenericResponseModel(
                     data=containers_list,
                     total=len(containers_list)
-                ).dict()
+                ).dict(),
             )
 
 

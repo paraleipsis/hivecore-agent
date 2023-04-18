@@ -1,4 +1,4 @@
-from typing import Mapping, MutableMapping, List
+from typing import Mapping, MutableMapping
 
 from aiodocker import Docker
 from aiohttp import web
