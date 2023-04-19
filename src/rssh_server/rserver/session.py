@@ -17,6 +17,7 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
         self.request_types = request_types
         self.stream_types = stream_types
         self._chan = None
+        self._loop = asyncio.get_event_loop()
 
     def connection_made(self, chan: asyncssh.SSHTCPChannel) -> None:
         """New connection established"""
@@ -74,13 +75,11 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
                 logging.info("Malformed request: missing 'data'")
                 self._send_response(request['id'], 400, {"message": "Missing 'data'"})
 
-            loop = asyncio.get_event_loop()
-
             if request['request_type'] in self.stream_types:
-                asyncio.run_coroutine_threadsafe(self.__process_stream(request), loop)
+                asyncio.run_coroutine_threadsafe(self.__process_stream(request), self._loop)
                 return None
 
-            asyncio.run_coroutine_threadsafe(self.__process_request(request), loop)
+            asyncio.run_coroutine_threadsafe(self.__process_request(request), self._loop)
             return None
 
         except Exception as exc:

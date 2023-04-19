@@ -20,7 +20,7 @@ def setup_routes(application: web.Application) -> None:
     setup_swarm_routes(application)
 
 
-async def create_rssh_server(application: web.Application):
+async def create_rssh_server(application: web.Application) -> None:
     rssh_server = hivecore_rssh_server.init()
 
     application['rssh_server'] = asyncio.create_task(rssh_server.start())
