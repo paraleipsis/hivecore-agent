@@ -6,7 +6,7 @@ from typing import Tuple
 from aiohttp import web
 from config.utils import load_config
 
-from rssh_server import liquorice_rssh_server
+from rssh_server import hivecore_rssh_server
 
 
 BASE_DIR = pathlib.Path(__file__).parent
@@ -21,7 +21,7 @@ def setup_routes(application: web.Application) -> None:
 
 
 async def create_rssh_server(application: web.Application):
-    rssh_server = liquorice_rssh_server.init()
+    rssh_server = hivecore_rssh_server.init()
 
     application['rssh_server'] = asyncio.create_task(rssh_server.start())
 
