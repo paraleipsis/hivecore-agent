@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import trafaret as t
 import yaml
 
@@ -9,7 +11,8 @@ CONFIG_TRAFARET = t.Dict(
         'ssh_client_remote_port': t.Int(),
         'ssh_server_host_keys_paths': t.String,
         'ssh_authorized_client_keys_path': t.String,
-        'ssh_encoding': t.String
+        'ssh_encoding': t.String,
+        'uuid': UUID
     }
 )
 

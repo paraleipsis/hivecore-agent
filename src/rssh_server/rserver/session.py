@@ -59,10 +59,6 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
                 logging.info("Malformed request: missing 'request_type'")
                 self._send_response(request['id'], 400, {"message": "Missing 'request_type'"})
 
-            if 'target_resource' not in request:
-                logging.info("Malformed request: missing 'target_resource'")
-                self._send_response(request['id'], 400, {"message": "Missing 'target_resource'"})
-
             if 'router' not in request:
                 logging.info("Malformed request: missing 'router'")
                 self._send_response(request['id'], 400, {"message": "Missing 'router'"})
@@ -100,13 +96,14 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
 
         callback = self._callbacks[request['request_type']][request['router']]
 
-        prepared_request = {
-            'target_resource': request['target_resource'],
-            'data': request['data']
-        }
+        prepared_request = request['data']
 
         try:
-            response = await callback(**prepared_request)
+            if prepared_request is None:
+                response = await callback()
+            else:
+                response = await callback(**prepared_request)
+
             self._send_response(
                 request_id=request['id'],
                 ssh_response_code=200,
@@ -131,10 +128,11 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
 
         callback = self._callbacks[request['request_type']][request['router']]
 
-        prepared_request = {
-            'target_resource': request['target_resource'],
-            'data': request['data']
-        }
+        prepared_request = request['data']
+
+        # TODO: fix this ugly stuff
+        if prepared_request is None:
+            prepared_request = {}
 
         try:
             async for response in callback(**prepared_request):
@@ -160,7 +158,7 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
             'id': str(uuid.uuid4()),
             'request_id': request_id,
             'ssh_response_code': ssh_response_code,
-            'response': response
+            'response': str(response)
         }
 
         logging.info(f"{ssh_response_code} response to {request_id}")

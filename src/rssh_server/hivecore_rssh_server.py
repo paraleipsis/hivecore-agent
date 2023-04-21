@@ -1,10 +1,7 @@
 import logging
-import pathlib
 
 from rssh_server.rserver.server import ReverseSSHServer
-from config.utils import load_config
-
-BASE_DIR = pathlib.Path(__file__).parent.parent
+from rssh_server.conf import (REMOTE_HOST, REMOTE_PORT, SERVER_HOST_KEYS, SSH_ENCODING, AUTHORIZED_KEYS)
 
 
 def setup_routes(reverse_ssh_server: ReverseSSHServer) -> None:
@@ -14,20 +11,12 @@ def setup_routes(reverse_ssh_server: ReverseSSHServer) -> None:
 
 
 def init() -> ReverseSSHServer:
-    conf = load_config(BASE_DIR / 'config' / 'config.yml')
-
-    remote_host = conf['ssh_client_remote_host']
-    remote_port = conf['ssh_client_remote_port']
-    server_host_keys = conf['ssh_server_host_keys_paths']
-    authorized_client_keys = conf['ssh_authorized_client_keys_path']
-    ssh_encoding = conf['ssh_encoding']
-
     rserver = ReverseSSHServer(
-        remote_host=remote_host,
-        remote_port=remote_port,
-        server_host_keys=server_host_keys,
-        authorized_client_keys=authorized_client_keys,
-        encoding=ssh_encoding
+        remote_host=REMOTE_HOST,
+        remote_port=REMOTE_PORT,
+        server_host_keys=SERVER_HOST_KEYS,
+        authorized_client_keys=AUTHORIZED_KEYS,
+        encoding=SSH_ENCODING,
     )
 
     setup_routes(rserver)

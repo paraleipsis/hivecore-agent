@@ -6,3 +6,5 @@ ssh_client_remote_port: 8022
 ssh_server_host_keys_paths: 'key'
 ssh_authorized_client_keys_path: 'authorized_keys'
 ssh_encoding: 'utf8'
+
+uuid: 37bb75c4-1ea3-4294-b2e4-4551a060a801

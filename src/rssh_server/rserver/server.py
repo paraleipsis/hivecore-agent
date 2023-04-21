@@ -47,7 +47,8 @@ class ReverseSSHServer:
 
     @staticmethod
     def add_callback(request_type: str, resource: str, callback: callable) -> None:
-        """Configure a callable to execute when receiving a request with the given verb and resource combination"""
+        """Configure a callable to execute when receiving a request
+        with the given request type and resource combination"""
 
         if request_type not in ReverseSSHServerFactory.ALL_TYPES:
             raise ValueError(f"Request type must be one of {ReverseSSHServerFactory.ALL_TYPES}")
