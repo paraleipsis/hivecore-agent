@@ -4,7 +4,7 @@ from aiodocker.channel import ChannelSubscriber
 
 from typing import List, Mapping, MutableMapping
 
-from swarm.swarm_api.logs import SwarmLogs, SwarmObjectURL
+from swarm.client.logs import SwarmLogs, SwarmObjectURL
 
 
 async def list_services(docker_session: Docker, filters: Mapping = None, status: bool = False) -> List[Mapping]:

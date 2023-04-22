@@ -7,10 +7,10 @@ from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
-from docker.docker_api import containers
+from docker.client import containers
 from docker.schemas import containers_schemas
 from docker.schemas import schemas
-from docker.utils import manage_exceptions
+from utils.exceptions_utils import manage_exceptions
 
 
 class ContainerCollectionView(PydanticView):
@@ -24,7 +24,6 @@ class ContainerCollectionView(PydanticView):
                 size=size,
                 filters=filters
             )
-            print(containers_list)
             return web.json_response(
                 data=schemas.GenericResponseModel(
                     data=containers_list,

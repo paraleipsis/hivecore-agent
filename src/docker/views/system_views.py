@@ -5,9 +5,9 @@ from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
-from docker.docker_api import daemon
+from docker.client import daemon
 from docker.schemas import schemas, system_schemas
-from docker.utils import manage_exceptions
+from utils.exceptions_utils import manage_exceptions
 
 
 class SystemInfoView(PydanticView):

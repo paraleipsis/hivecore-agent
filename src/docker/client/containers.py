@@ -6,13 +6,13 @@ from aiodocker.execs import Exec
 from aiodocker.stream import Stream
 from aiohttp.web_ws import WebSocketResponse
 
-from docker.docker_api.images import pull_image
-from docker.docker_api.logs import DockerLogs
+from docker.client.images import pull_image
+from docker.client.logs import DockerLogs
 from aiodocker.utils import clean_filters
 
 from typing import List, Mapping, Optional, MutableMapping, Union
 
-from docker.docker_api.stats import DockerStats
+from docker.client.stats import DockerStats
 
 
 async def list_containers(docker_session: Docker, list_all: bool = False, size: bool = False,

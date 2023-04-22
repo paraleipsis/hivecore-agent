@@ -2,7 +2,7 @@ from aiodocker.docker import Docker
 from aiodocker.utils import clean_filters
 from aiodocker.channel import ChannelSubscriber
 
-from swarm.swarm_api.logs import SwarmLogs, SwarmObjectURL
+from swarm.client.logs import SwarmLogs, SwarmObjectURL
 
 from typing import List, Mapping, MutableMapping
 

@@ -5,9 +5,9 @@ from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
-from swarm.swarm_api import swarm
+from swarm.client import swarm
 from swarm.schemas import swarm_schemas, schemas
-from swarm.utils import manage_exceptions
+from utils.exceptions_utils import manage_exceptions
 
 
 class SwarmInspectView(PydanticView):

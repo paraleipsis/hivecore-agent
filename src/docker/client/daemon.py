@@ -6,10 +6,10 @@ from aiodocker.docker import Docker
 
 from typing import Mapping
 
-from docker.docker_api.images import prune_images
-from docker.docker_api.containers import prune_containers
-from docker.docker_api.networks import prune_networks
-from docker.docker_api.volumes import prune_volumes
+from docker.client.images import prune_images
+from docker.client.containers import prune_containers
+from docker.client.networks import prune_networks
+from docker.client.volumes import prune_volumes
 
 from collections import ChainMap
 

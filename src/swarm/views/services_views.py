@@ -5,9 +5,9 @@ from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
-from swarm.swarm_api import services
+from swarm.client import services
 from swarm.schemas import services_schemas, schemas
-from swarm.utils import manage_exceptions
+from utils.exceptions_utils import manage_exceptions
 
 
 class ServiceCollectionView(PydanticView):

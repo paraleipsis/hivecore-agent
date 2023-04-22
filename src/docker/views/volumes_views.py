@@ -5,9 +5,9 @@ from aiohttp import web
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
-from docker.docker_api import volumes
+from docker.client import volumes
 from docker.schemas import schemas, volumes_schemas
-from docker.utils import manage_exceptions
+from utils.exceptions_utils import manage_exceptions
 
 
 class VolumeCollectionView(PydanticView):

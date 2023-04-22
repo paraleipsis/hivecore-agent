@@ -1,6 +1,4 @@
-import logging
-
-from rssh_server.rserver.server import ReverseSSHServer
+from rssh.server.server import ReverseSSHServer
 from rssh_server.conf import (REMOTE_HOST, REMOTE_PORT, SERVER_HOST_KEYS, SSH_ENCODING, AUTHORIZED_KEYS)
 
 
@@ -10,7 +8,7 @@ def setup_routes(reverse_ssh_server: ReverseSSHServer) -> None:
     setup_ssh_routes(reverse_ssh_server)
 
 
-def init() -> ReverseSSHServer:
+def init_rssh_server() -> ReverseSSHServer:
     rserver = ReverseSSHServer(
         remote_host=REMOTE_HOST,
         remote_port=REMOTE_PORT,
@@ -24,13 +22,4 @@ def init() -> ReverseSSHServer:
     return rserver
 
 
-# def main() -> None:
-#     # logging.basicConfig(level=logging.DEBUG)
-#     logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(asctime)s %(message)s')
-#
-#     rserver = init()
-#     await rserver.start()
-#
-#
-# if __name__ == '__main__':
-#     main()
+rssh_server = init_rssh_server()
