@@ -2,14 +2,6 @@ from typing import Any
 
 import aiohttp
 
-from rssh_server.conf import HOST_UUID
-
-
-async def identification():
-    response = HOST_UUID
-
-    return response
-
 
 async def get_resource(target_resource: str):
     async with aiohttp.ClientSession() as session:
