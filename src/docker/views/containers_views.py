@@ -82,7 +82,7 @@ class ContainerInspectView(PydanticView):
 class ContainerRunView(PydanticView):
     @manage_exceptions
     async def post(self, config: containers_schemas.ContainerCreate, name: Optional[str] = None,
-                   auth: Optional[Union[Mapping, str, bytes]] = None) -> r200[schemas.GenericResponseModel[str]]:
+                   auth: Optional[Union[Mapping, str, bytes]] = None) -> r200[schemas.GenericResponseModel[Mapping]]:
         async with Docker() as session:
             data = await containers.run_container(
                 docker_session=session,
@@ -92,7 +92,7 @@ class ContainerRunView(PydanticView):
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
-                    data=data.id,
+                    data=data,
                 ).dict()
             )
 

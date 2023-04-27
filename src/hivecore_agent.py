@@ -20,6 +20,7 @@ def init() -> Tuple[web.Application, str, int]:
     init_routes(app)
 
     host, port = conf['host'], conf['port']
+
     return app, host, port
 
 
@@ -27,6 +28,8 @@ def main() -> None:
     app, host, port = init()
 
     web.run_app(app, host=host, port=port)
+
+    return None
 
 
 if __name__ == '__main__':

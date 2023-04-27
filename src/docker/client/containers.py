@@ -1,6 +1,8 @@
+import json
+
 from aiodocker import DockerError, DockerContainerError
 from aiodocker.channel import ChannelSubscriber
-from aiodocker.containers import DockerContainer, DockerContainers
+from aiodocker.containers import DockerContainer
 from aiodocker.docker import Docker
 from aiodocker.execs import Exec
 from aiodocker.stream import Stream
@@ -8,7 +10,7 @@ from aiohttp.web_ws import WebSocketResponse
 
 from docker.client.images import pull_image
 from docker.client.logs import DockerLogs
-from aiodocker.utils import clean_filters
+from aiodocker.utils import clean_filters, format_env
 
 from typing import List, Mapping, Optional, MutableMapping, Union
 
@@ -46,8 +48,8 @@ async def get_containers(docker_session: Docker) -> List[Mapping]:
     return containers_details_list
 
 
-async def run_container(docker_session: Docker, config: Mapping, auth: Optional[Union[Mapping, str, bytes]] = None,
-                        name: Optional[str] = None) -> DockerContainer:
+async def run_container(docker_session: Docker, config: MutableMapping, auth: Optional[Union[Mapping, str, bytes]] = None,
+                        name: Optional[str] = None) -> MutableMapping:
     try:
         container = await create_container(docker_session=docker_session, config=config, name=name)
     except DockerError as err:
@@ -68,7 +70,9 @@ async def run_container(docker_session: Docker, config: Mapping, auth: Optional[
             err.status, {"message": err.message}, container["id"]
         )
 
-    return container
+    container_id = {'Id': container.id}
+
+    return container_id
 
 
 async def remove_container(docker_session: Docker, container_id: str,
@@ -158,9 +162,28 @@ async def container_terminal(docker_session: Docker, container_id: str) -> Strea
     return exec_instance.start()
 
 
-async def create_container(docker_session: Docker, config: Mapping, name=None) -> DockerContainer:
-    container = await DockerContainers(docker=docker_session).create(config=config, name=name)
-    return container
+async def create_container(docker_session: Docker, config: MutableMapping, name=None) -> DockerContainer:
+    kwargs = {}
+
+    if name:
+        kwargs["name"] = name
+
+    if "Env" in config:
+        config["Env"] = [
+            format_env(k, v)
+            for k, v in config["Env"].items()
+        ]
+
+    config = json.dumps(config, sort_keys=True).encode("utf-8")
+
+    data = await docker_session._query_json(
+        "containers/create",
+        method="POST",
+        data=config,
+        params=kwargs
+    )
+
+    return DockerContainer(docker_session, id=data["Id"])
 
 
 async def attach_container(docker_session: Docker, container_id: str):

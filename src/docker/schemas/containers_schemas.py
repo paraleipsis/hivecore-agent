@@ -13,7 +13,7 @@ class ContainerCreate(BaseModel):
     Tty: Optional[bool]
     OpenStdin: Optional[bool]
     StdinOnce: Optional[bool]
-    Env: Optional[List[str]]
+    Env: Optional[Mapping]
     Cmd: Optional[List[str]]
     Entrypoint: Optional[str]
     Labels: Optional[Mapping]
