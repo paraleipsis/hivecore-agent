@@ -6,7 +6,8 @@ from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
 from docker.client import images
-from docker.schemas import schemas, images_schemas
+from docker.schemas import images_schemas
+from modules.schemas import response_schemas as schemas
 from utils.exceptions_utils import manage_exceptions
 
 

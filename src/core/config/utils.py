@@ -12,6 +12,7 @@ CONFIG_TRAFARET = t.Dict(
         'ssh_server_host_keys_paths': t.String,
         'ssh_authorized_client_keys_path': t.String,
         'ssh_encoding': t.String,
+        'ssh_connection_timeout': t.Int(),
         'uuid': UUID
     }
 )

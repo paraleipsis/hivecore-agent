@@ -1,5 +1,6 @@
-from rssh.server.server import ReverseSSHServer
-from rssh_server.conf import (REMOTE_HOST, REMOTE_PORT, SERVER_HOST_KEYS, SSH_ENCODING, AUTHORIZED_KEYS, HOST_UUID)
+from modules.rssh.server.server import ReverseSSHServer
+from rssh_server.conf import (REMOTE_HOST, REMOTE_PORT, SERVER_HOST_KEYS, SSH_ENCODING,
+                              AUTHORIZED_KEYS, HOST_UUID, SSH_CONNECTION_TIMEOUT)
 
 
 def setup_routes(reverse_ssh_server: ReverseSSHServer) -> None:
@@ -15,7 +16,8 @@ def init_rssh_server() -> ReverseSSHServer:
         server_host_keys=SERVER_HOST_KEYS,
         authorized_client_keys=AUTHORIZED_KEYS,
         encoding=SSH_ENCODING,
-        server_uuid=HOST_UUID
+        server_uuid=HOST_UUID,
+        connection_timeout=SSH_CONNECTION_TIMEOUT
     )
 
     setup_routes(rserver)

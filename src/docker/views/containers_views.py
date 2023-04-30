@@ -9,7 +9,7 @@ from aiohttp_pydantic.oas.typing import r200
 
 from docker.client import containers
 from docker.schemas import containers_schemas
-from docker.schemas import schemas
+from modules.schemas import response_schemas as schemas
 from utils.exceptions_utils import manage_exceptions
 
 

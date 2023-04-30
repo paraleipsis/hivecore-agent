@@ -3,7 +3,7 @@ import functools
 from aiodocker import DockerError
 from aiohttp import web
 
-from docker.schemas import schemas
+from modules.schemas import response_schemas as schemas
 from logger.logs import logger
 
 

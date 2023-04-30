@@ -6,7 +6,8 @@ from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 
 from swarm.client import nodes
-from swarm.schemas import nodes_schemas, schemas
+from swarm.schemas import nodes_schemas
+from modules.schemas import response_schemas as schemas
 from utils.exceptions_utils import manage_exceptions
 
 

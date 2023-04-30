@@ -211,11 +211,19 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
 
         try:
             async for response in callback(**prepared_request):
-                self._send_response(
-                    request_id=request['id'],
-                    ssh_response_code=200,
-                    response=response
-                )
+                if response is not None:
+                    self._send_response(
+                        request_id=request['id'],
+                        ssh_response_code=200,
+                        response=response
+                    )
+                else:
+                    self._send_response(
+                        request_id=request['id'],
+                        ssh_response_code=200,
+                        response=None
+                    )
+
             return None
 
         except Exception as exc:
@@ -242,5 +250,6 @@ class ReverseSSHServerSession(asyncssh.SSHTCPSession):
         logger['info'].info(
             f"{ssh_response_code} response to {request_id}"
         )
+
         self._chan.write(gzip.compress(json.dumps(ssh_response, separators=(',', ':')).encode('utf-8')))
         return None
