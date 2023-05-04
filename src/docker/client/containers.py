@@ -10,11 +10,12 @@ from aiohttp.web_ws import WebSocketResponse
 
 from docker.client.images import pull_image
 from docker.client.logs import DockerLogs
-from aiodocker.utils import clean_filters, format_env
+from aiodocker.utils import clean_filters, clean_map
 
 from typing import List, Mapping, Optional, MutableMapping, Union
 
 from docker.client.stats import DockerStats
+from docker.utils.container_config import format_config
 
 
 async def list_containers(docker_session: Docker, list_all: bool = False, size: bool = False,
@@ -48,8 +49,14 @@ async def get_containers(docker_session: Docker) -> List[Mapping]:
     return containers_details_list
 
 
-async def run_container(docker_session: Docker, config: MutableMapping, auth: Optional[Union[Mapping, str, bytes]] = None,
-                        name: Optional[str] = None) -> MutableMapping:
+async def run_container(
+        docker_session: Docker,
+        config: MutableMapping,
+        auth: Optional[Union[Mapping, str, bytes]] = None,
+        name: Optional[str] = None
+) -> MutableMapping:
+    config = format_config(config=config)
+
     try:
         container = await create_container(docker_session=docker_session, config=config, name=name)
     except DockerError as err:
@@ -168,13 +175,7 @@ async def create_container(docker_session: Docker, config: MutableMapping, name=
     if name:
         kwargs["name"] = name
 
-    if "Env" in config:
-        config["Env"] = [
-            format_env(k, v)
-            for k, v in config["Env"].items()
-        ]
-
-    config = json.dumps(config, sort_keys=True).encode("utf-8")
+    config = json.dumps(clean_map(config), sort_keys=True)
 
     data = await docker_session._query_json(
         "containers/create",
@@ -188,21 +189,3 @@ async def create_container(docker_session: Docker, config: MutableMapping, name=
 
 async def attach_container(docker_session: Docker, container_id: str):
     pass
-
-
-# import asyncio
-#
-# async def main():
-#     async with Docker() as session:
-#         # logs
-#         logs_subscriber = container_logs_subscriber(docker_session=session, container_id='da', stdout=True, stderr=True, follow=True)
-#         while True:
-#             message = await logs_subscriber.get()
-#             if message is None:
-#                 break
-#             print(message)
-#         return None
-#
-#     # return c
-#
-# print(asyncio.run(main()))

@@ -5,7 +5,7 @@ from io import BytesIO
 from aiodocker.docker import Docker
 from typing import List, Mapping, MutableMapping
 
-from aiodocker.utils import clean_filters
+from aiodocker.utils import clean_filters, mktar_from_dockerfile
 
 
 async def list_images(docker_session: Docker, list_all: bool = False, shared_size: bool = False,
@@ -42,22 +42,12 @@ async def remove_image(docker_session: Docker, image_id: str, force: bool = Fals
 
 async def build_image(docker_session: Docker, config: MutableMapping) -> bool:
     if 'fileobj' in config:
-        encoding = 'utf-8'
-        dockerfile = BytesIO(config['fileobj'].encode(encoding))
-
-        f = tempfile.NamedTemporaryFile()
-        t = tarfile.open(mode='w', fileobj=f)
-
-        dfinfo = tarfile.TarInfo('Dockerfile')
-        dfinfo.size = len(dockerfile.getvalue())
-        dockerfile.seek(0)
-
-        t.addfile(dfinfo, dockerfile)
-        t.close()
-        f.seek(0)
-
-        config['fileobj'] = f
+        encoding = 'gzip'
+        dockerfile = BytesIO(config['fileobj'].encode('utf-8'))
+        dockerfile_tar = mktar_from_dockerfile(dockerfile)
+        config['fileobj'] = dockerfile_tar
         config['encoding'] = encoding
+        dockerfile_tar.close()
 
     await docker_session.images.build(**config)
 

@@ -35,6 +35,7 @@ class DockerLogs:
                     msg = await self.response.content.readline()
                     if not msg:
                         break
+                    await asyncio.sleep(0.01)
                     await self.channel.publish(msg)
         except (aiohttp.ClientConnectionError, aiohttp.ServerDisconnectedError):
             pass

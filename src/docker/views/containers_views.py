@@ -81,8 +81,12 @@ class ContainerInspectView(PydanticView):
 
 class ContainerRunView(PydanticView):
     @manage_exceptions
-    async def post(self, config: containers_schemas.ContainerCreate, name: Optional[str] = None,
-                   auth: Optional[Union[Mapping, str, bytes]] = None) -> r200[schemas.GenericResponseModel[Mapping]]:
+    async def post(
+            self,
+            config: containers_schemas.ContainerCreate,
+            name: Optional[str] = None,
+            auth: Optional[Union[Mapping, str, bytes]] = None
+    ) -> r200[schemas.GenericResponseModel[Mapping]]:
         async with Docker() as session:
             data = await containers.run_container(
                 docker_session=session,
@@ -114,7 +118,7 @@ class ContainerPruneView(PydanticView):
 
 class ContainerStartView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.start_container(
                 docker_session=session,
@@ -129,7 +133,7 @@ class ContainerStartView(PydanticView):
 
 class ContainerStopView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.stop_container(
                 docker_session=session,
@@ -144,7 +148,7 @@ class ContainerStopView(PydanticView):
 
 class ContainerRestartView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.restart_container(
                 docker_session=session,
@@ -159,7 +163,7 @@ class ContainerRestartView(PydanticView):
 
 class ContainerPauseView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.pause_container(
                 docker_session=session,
@@ -174,7 +178,7 @@ class ContainerPauseView(PydanticView):
 
 class ContainerUnpauseView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.unpause_container(
                 docker_session=session,
@@ -189,7 +193,7 @@ class ContainerUnpauseView(PydanticView):
 
 class ContainerKillView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.kill_container(
                 docker_session=session,
@@ -207,7 +211,6 @@ class ContainerLogsView(PydanticView):
     async def get(self, container_id: str, /):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
-
         try:
             async with Docker() as session:
                 logs_subscriber = containers.container_logs_subscriber(
@@ -221,7 +224,7 @@ class ContainerLogsView(PydanticView):
                     message = await logs_subscriber.get()
                     if message is None:
                         break
-                    await ws.send_str(str(message))
+                    await ws.send_str(message[8:].decode())
         finally:
             await ws.close()
             return ws
@@ -243,7 +246,7 @@ class ContainerStatsView(PydanticView):
                     message = await stats_subscriber.get()
                     if message is None:
                         break
-                    await ws.send_str(str(message))
+                    await ws.send_json(message)
         finally:
             await ws.close()
             return ws

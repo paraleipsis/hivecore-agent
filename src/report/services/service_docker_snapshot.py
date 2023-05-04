@@ -30,7 +30,7 @@ async def get_docker_snapshot_on_event() -> Generator[
 ]:
     try:
         async for _ in docker_client.ws_docker_events():
-            snapshot = get_docker_snapshot()
+            snapshot = await get_docker_snapshot()
             yield snapshot
     except Exception as exc:
         logger['debug'].debug(

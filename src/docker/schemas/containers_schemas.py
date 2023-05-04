@@ -1,5 +1,18 @@
 from pydantic import BaseModel
-from typing import Optional, List, Mapping
+from typing import Optional, List, Mapping, Literal, Any
+
+
+class ContainerVolumeBind(BaseModel):
+    host_path: str
+    container_path: str
+    mode: Optional[Literal["ro", "rw"]] = "rw"
+
+
+class ContainerPortsBind(BaseModel):
+    host_port: str | List[str]
+    container_port: str
+    tcp: Optional[bool] = True
+    udp: Optional[bool] = False
 
 
 class ContainerCreate(BaseModel):
@@ -26,3 +39,11 @@ class ContainerCreate(BaseModel):
     StopTimeout: Optional[int]
     HostConfig: Optional[Mapping]
     NetworkingConfig: Optional[Mapping]
+    PortsBind: Optional[List[ContainerPortsBind]]
+    VolumesBind: Optional[List[ContainerVolumeBind]]
+
+    def dict(self, *args, **kwargs) -> dict[str, Any]:
+        """Override the default dict method to exclude None values in the response."""
+
+        kwargs.pop('exclude_none', None)
+        return super().dict(*args, exclude_none=True, **kwargs)
