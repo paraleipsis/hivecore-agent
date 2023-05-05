@@ -10,13 +10,17 @@ from aiohttp_pydantic.oas.typing import r200
 from docker.client import containers
 from docker.schemas import containers_schemas
 from modules.schemas import response_schemas as schemas
-from utils.exceptions_utils import manage_exceptions
+from modules.utils.exceptions_utils import manage_exceptions
 
 
 class ContainerCollectionView(PydanticView):
     @manage_exceptions
-    async def get(self, list_all: bool = False, size: bool = False,
-                  filters: Mapping = None) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self,
+            list_all: bool = False,
+            size: bool = False,
+            filters: Mapping = None
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             containers_list = await containers.list_containers(
                 docker_session=session,
@@ -34,7 +38,9 @@ class ContainerCollectionView(PydanticView):
 
 class ContainerCollectionInspectView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             containers_details_list = await containers.get_containers(
                 docker_session=session,
@@ -49,7 +55,10 @@ class ContainerCollectionInspectView(PydanticView):
 
 class ContainerInspectView(PydanticView):
     @manage_exceptions
-    async def get(self, container_id: str, /) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def get(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
             container_details = await containers.inspect_container(
                 docker_session=session,
@@ -62,8 +71,13 @@ class ContainerInspectView(PydanticView):
             )
 
     @manage_exceptions
-    async def delete(self, container_id: str, /, v: bool = False, link: bool = False,
-                     force: bool = False) -> r200[schemas.GenericResponseModel[bool]]:
+    async def delete(
+            self,
+            container_id: str, /,
+            v: bool = False,
+            link: bool = False,
+            force: bool = False
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.remove_container(
                 docker_session=session,
@@ -103,7 +117,10 @@ class ContainerRunView(PydanticView):
 
 class ContainerPruneView(PydanticView):
     @manage_exceptions
-    async def post(self, filters: Mapping = None) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def post(
+            self,
+            filters: Mapping = None
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
             data = await containers.prune_containers(
                 docker_session=session,
@@ -118,7 +135,10 @@ class ContainerPruneView(PydanticView):
 
 class ContainerStartView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.start_container(
                 docker_session=session,
@@ -133,7 +153,10 @@ class ContainerStartView(PydanticView):
 
 class ContainerStopView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.stop_container(
                 docker_session=session,
@@ -148,7 +171,10 @@ class ContainerStopView(PydanticView):
 
 class ContainerRestartView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.restart_container(
                 docker_session=session,
@@ -163,7 +189,10 @@ class ContainerRestartView(PydanticView):
 
 class ContainerPauseView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.pause_container(
                 docker_session=session,
@@ -178,7 +207,10 @@ class ContainerPauseView(PydanticView):
 
 class ContainerUnpauseView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.unpause_container(
                 docker_session=session,
@@ -193,7 +225,10 @@ class ContainerUnpauseView(PydanticView):
 
 class ContainerKillView(PydanticView):
     @manage_exceptions
-    async def post(self, container_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            container_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await containers.kill_container(
                 docker_session=session,
@@ -208,7 +243,10 @@ class ContainerKillView(PydanticView):
 
 class ContainerLogsView(PydanticView):
     @manage_exceptions
-    async def get(self, container_id: str, /):
+    async def get(
+            self,
+            container_id: str, /
+    ):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
         try:
@@ -227,12 +265,14 @@ class ContainerLogsView(PydanticView):
                     await ws.send_str(message[8:].decode())
         finally:
             await ws.close()
-            return ws
 
 
 class ContainerStatsView(PydanticView):
     @manage_exceptions
-    async def get(self, container_id: str, /):
+    async def get(
+            self,
+            container_id: str, /
+    ):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
 
@@ -249,12 +289,14 @@ class ContainerStatsView(PydanticView):
                     await ws.send_json(message)
         finally:
             await ws.close()
-            return ws
 
 
 class ContainerTerminalView(PydanticView):
     @manage_exceptions
-    async def get(self, container_id: str, /):
+    async def get(
+            self,
+            container_id: str, /
+    ):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
 
@@ -270,7 +312,6 @@ class ContainerTerminalView(PydanticView):
                     await asyncio.gather(task1, task2)
         finally:
             await ws.close()
-            return ws
 
 
 class ContainerAttachView(PydanticView):

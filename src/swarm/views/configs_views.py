@@ -8,7 +8,7 @@ from aiohttp_pydantic.oas.typing import r200
 from swarm.client import configs
 from swarm.schemas import configs_schemas
 from modules.schemas import response_schemas as schemas
-from utils.exceptions_utils import manage_exceptions
+from modules.utils.exceptions_utils import manage_exceptions
 
 
 class ConfigCollectionView(PydanticView):

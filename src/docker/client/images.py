@@ -1,5 +1,3 @@
-import tarfile
-import tempfile
 from io import BytesIO
 
 from aiodocker.docker import Docker
@@ -8,14 +6,33 @@ from typing import List, Mapping, MutableMapping
 from aiodocker.utils import clean_filters, mktar_from_dockerfile
 
 
-async def list_images(docker_session: Docker, list_all: bool = False, shared_size: bool = False,
-                      filters: Mapping = None, digests: bool = False) -> List[Mapping]:
-    params = {"filters": clean_filters(filters), "all": list_all, "shared-size": shared_size, "digests": digests}
-    images = await docker_session._query_json("images/json", "GET", params=params)
+async def list_images(
+        docker_session: Docker,
+        list_all: bool = False,
+        shared_size: bool = False,
+        filters: Mapping = None,
+        digests: bool = False
+) -> List[Mapping]:
+    params = {
+        "filters": clean_filters(filters),
+        "all": list_all,
+        "shared-size": shared_size,
+        "digests": digests
+    }
+
+    images = await docker_session._query_json(
+        "images/json",
+        "GET",
+        params=params
+    )
+
     return images
 
 
-async def inspect_image(docker_session: Docker, image_id: str) -> List[Mapping]:
+async def inspect_image(
+        docker_session: Docker,
+        image_id: str
+) -> List[Mapping]:
     images = docker_session.images
     image = await images.inspect(name=image_id)
     return image
@@ -28,44 +45,86 @@ async def get_images(docker_session: Docker) -> List[Mapping]:
     return images_details_list
 
 
-async def tag_image(docker_session: Docker, image_id: str, repo: str, tag: str = None) -> bool:
-    await docker_session.images.tag(name=image_id, repo=repo, tag=tag)
+async def tag_image(
+        docker_session: Docker,
+        image_id: str,
+        repo: str,
+        tag: str = None
+) -> bool:
+    await docker_session.images.tag(
+        name=image_id,
+        repo=repo,
+        tag=tag
+    )
 
     return True
 
 
-async def remove_image(docker_session: Docker, image_id: str, force: bool = False, noprune: bool = False) -> bool:
-    await docker_session.images.delete(name=image_id, force=force, noprune=noprune)
+async def remove_image(
+        docker_session: Docker,
+        image_id: str,
+        force: bool = False,
+        noprune: bool = False
+) -> bool:
+    await docker_session.images.delete(
+        name=image_id,
+        force=force,
+        noprune=noprune
+    )
 
     return True
 
 
-async def build_image(docker_session: Docker, config: MutableMapping) -> bool:
-    if 'fileobj' in config:
+async def build_image(
+        docker_session: Docker,
+        **kwargs
+) -> bool:
+    if 'fileobj' in kwargs:
         encoding = 'gzip'
-        dockerfile = BytesIO(config['fileobj'].encode('utf-8'))
+        dockerfile = BytesIO(kwargs['fileobj'].encode('utf-8'))
         dockerfile_tar = mktar_from_dockerfile(dockerfile)
-        config['fileobj'] = dockerfile_tar
-        config['encoding'] = encoding
+        kwargs['fileobj'] = dockerfile_tar
+        kwargs['encoding'] = encoding
+        await docker_session.images.build(**kwargs)
         dockerfile_tar.close()
 
-    await docker_session.images.build(**config)
+        return True
+
+    await docker_session.images.build(**kwargs)
 
     return True
 
 
-async def pull_image(docker_session: Docker, from_image: str, tag: str = None, **kwargs) -> bool:
+async def pull_image(
+        docker_session: Docker,
+        from_image: str,
+        tag: str = None,
+        **kwargs
+) -> bool:
     if tag is None:
         tag = 'latest'
 
-    await docker_session.images.pull(from_image=from_image, tag=tag, **kwargs)
+    await docker_session.images.pull(
+        from_image=from_image,
+        tag=tag,
+        **kwargs
+    )
 
     return True
 
 
-async def prune_images(docker_session: Docker, filters: Mapping = None) -> MutableMapping:
+async def prune_images(
+        docker_session: Docker,
+        filters: Mapping = None
+) -> MutableMapping:
     params = {"filters": clean_filters(filters)}
-    response = await docker_session._query_json("images/prune", method="POST", params=params)
+
+    response = await docker_session._query_json(
+        "images/prune",
+        method="POST",
+        params=params
+    )
+
     return response
 
 

@@ -21,6 +21,12 @@ def format_response(key: str, response: MutableMapping) -> Dict:
     return formatted_response
 
 
+def format_image_id(image: Dict) -> Dict:
+    image['Id'] = image['Id'].split(':')[1]
+
+    return image
+
+
 def swarm_check(docker_snapshot_results: Dict) -> Tuple:
     swarm_info = docker_snapshot_results['system']['data']['Swarm']
     swarm_mode = swarm_info['LocalNodeState']

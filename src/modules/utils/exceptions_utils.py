@@ -3,7 +3,7 @@ import functools
 from aiodocker import DockerError
 from aiohttp import web
 
-from docker.exceptions import ContainerError
+from docker.exceptions import DockerClientError
 from modules.schemas import response_schemas as schemas
 from logger.logs import logger
 
@@ -21,13 +21,13 @@ def manage_exceptions(func):
                 status=de.status,
                 data=schemas.GenericResponseModel(success=False, error_msg=de.message).dict()
             )
-        except ContainerError as ce:
+        except DockerClientError as dce:
             logger['debug'].debug(
-                f'{type(ce).__name__}: {str(ce)}'
+                f'{type(dce).__name__}: {str(dce)}'
             )
             return web.json_response(
                 status=400,
-                data=schemas.GenericResponseModel(success=False, error_msg=str(ce)).dict()
+                data=schemas.GenericResponseModel(success=False, error_msg=str(dce)).dict()
             )
         except Exception as e:
             logger['error'].error(

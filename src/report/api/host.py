@@ -1,12 +1,10 @@
-from typing import MutableMapping, List
-
 from aiohttp_pydantic import PydanticView
 from aiohttp_pydantic.oas.typing import r200
 from aiohttp import web
 
 from modules.schemas import response_schemas as schemas
 from report.schemas.schemas_docker_snapshot import DockerSnapshot
-from utils.exceptions_utils import manage_exceptions
+from modules.utils.exceptions_utils import manage_exceptions
 from report.services.service_docker_snapshot import get_docker_snapshot, get_docker_snapshot_on_event
 
 
@@ -27,4 +25,3 @@ class HostDockerSnapshotView(PydanticView):
                 await ws.send_json(snapshot.dict())
         finally:
             await ws.close()
-            return ws

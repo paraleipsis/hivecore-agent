@@ -7,7 +7,7 @@ from aiohttp_pydantic.oas.typing import r200
 
 from swarm.client import tasks
 from modules.schemas import response_schemas as schemas
-from utils.exceptions_utils import manage_exceptions
+from modules.utils.exceptions_utils import manage_exceptions
 
 
 class TaskCollectionView(PydanticView):
@@ -78,4 +78,3 @@ class TaskLogsView(PydanticView):
                     await ws.send_str(str(message))
         finally:
             await ws.close()
-            return ws

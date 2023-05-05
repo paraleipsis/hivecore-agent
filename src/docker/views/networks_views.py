@@ -8,7 +8,7 @@ from aiohttp_pydantic.oas.typing import r200
 from docker.client import networks
 from docker.schemas import networks_schemas
 from modules.schemas import response_schemas as schemas
-from utils.exceptions_utils import manage_exceptions
+from modules.utils.exceptions_utils import manage_exceptions
 
 
 class NetworkCollectionView(PydanticView):

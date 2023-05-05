@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import Generic, TypeVar, Optional, Any
+from typing import Generic, TypeVar, Optional
 from pydantic.generics import GenericModel
 
 DataT = TypeVar('DataT')

@@ -1,12 +1,16 @@
 from typing import Generator, MutableMapping
 
 from modules.client.requests_handler import get_request, establish_websocket_conn
-from report.utils import format_response
+from report.utils import format_response, format_image_id
 
 
 async def get_docker_images() -> MutableMapping:
     response = await get_request(url='http://127.0.0.1:8080/docker/images/inspect')
     images = format_response(key='images', response=response)
+
+    for image in images['images']['data']:
+        format_image_id(image)
+
     return images
 
 

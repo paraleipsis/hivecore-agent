@@ -1,16 +1,20 @@
-from pydantic import BaseModel
-from typing import Optional, Mapping
+from typing import Optional, Mapping, Any
+
+from pydantic.main import BaseModel
 
 
-class ImageBuild(BaseModel):
+class ImageCreate(BaseModel):
     remote: Optional[str]
     fileobj: Optional[str]
-    path_dockerfile: Optional[str]
     tag: Optional[str]
-    quiet: Optional[bool]
-    nocache: Optional[bool]
-    buildargs: Optional[Mapping]
-    pull: Optional[bool]
-    rm: Optional[bool]
-    forcerm: Optional[bool]
+    nocache: Optional[bool] = False
+    pull: Optional[bool] = False
+    rm: Optional[bool] = True
+    forcerm: Optional[bool] = False
     labels: Optional[Mapping]
+
+    def dict(self, *args, **kwargs) -> dict[str, Any]:
+        """Override the default dict method to exclude None values in the response."""
+
+        kwargs.pop('exclude_none', None)
+        return super().dict(*args, exclude_none=True, **kwargs)

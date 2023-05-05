@@ -3,12 +3,15 @@ import aiohttp
 from typing import Any, Generator, MutableMapping
 
 from logger.logs import logger
+from rssh_server.utils import httpize
+
 
 # TODO: add exceptions handling and response codes
 
 
 async def get_resource(target_resource: str, params: Any = None, data: Any = None):
     try:
+        params = httpize(params)
         async with aiohttp.ClientSession() as session:
             async with session.get(target_resource, params=params, data=data) as resp:
                 response = await resp.json()
@@ -22,6 +25,7 @@ async def get_resource(target_resource: str, params: Any = None, data: Any = Non
 
 async def post_resource(target_resource: str, data: Any = None, params: Any = None):
     try:
+        params = httpize(params)
         async with aiohttp.ClientSession() as session:
             async with session.post(target_resource, data=data, params=params) as resp:
                 response = await resp.json()
@@ -35,6 +39,7 @@ async def post_resource(target_resource: str, data: Any = None, params: Any = No
 
 async def delete_resource(target_resource: str, params: Any = None, data: Any = None):
     try:
+        params = httpize(params)
         async with aiohttp.ClientSession() as session:
             async with session.delete(target_resource, params=params, data=data) as resp:
                 response = await resp.json()
@@ -52,6 +57,7 @@ async def ws_resource(
 ) -> Generator[MutableMapping, MutableMapping, None]:
     async with aiohttp.ClientSession() as session:
         try:
+            params = httpize(params)
             async with session.ws_connect(target_resource, params=params) as ws:
                 async for msg in ws:
                     if msg.type == aiohttp.WSMsgType.TEXT:

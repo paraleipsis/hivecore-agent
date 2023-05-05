@@ -8,7 +8,7 @@ from aiohttp_pydantic.oas.typing import r200
 from swarm.client import secrets
 from swarm.schemas import secrets_schemas
 from modules.schemas import response_schemas as schemas
-from utils.exceptions_utils import manage_exceptions
+from modules.utils.exceptions_utils import manage_exceptions
 
 
 class SecretCollectionView(PydanticView):

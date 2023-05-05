@@ -1,4 +1,8 @@
-class ContainerError(Exception):
+class DockerClientError(Exception):
+    pass
+
+
+class ContainerError(DockerClientError):
     pass
 
 
