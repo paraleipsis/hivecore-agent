@@ -27,6 +27,12 @@ def format_image_id(image: Dict) -> Dict:
     return image
 
 
+def format_volume_id(volume: Dict) -> Dict:
+    volume['Id'] = volume.pop('Name', 'Id')
+
+    return volume
+
+
 def swarm_check(docker_snapshot_results: Dict) -> Tuple:
     swarm_info = docker_snapshot_results['system']['data']['Swarm']
     swarm_mode = swarm_info['LocalNodeState']

@@ -8,7 +8,6 @@ class NetworkCreate(BaseModel):
     Driver: Optional[str]
     Internal: Optional[bool]
     Attachable: Optional[bool]
-    nocache: Optional[bool]
     Ingress: Optional[bool]
     IPAM: Optional[Mapping]
     EnableIPv6: Optional[bool]

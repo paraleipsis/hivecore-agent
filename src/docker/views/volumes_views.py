@@ -13,7 +13,10 @@ from modules.utils.exceptions_utils import manage_exceptions
 
 class VolumeCollectionView(PydanticView):
     @manage_exceptions
-    async def get(self, filters: Mapping = None) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self,
+            filters: Mapping = None
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             volumes_list = await volumes.list_volumes(
                 docker_session=session,
@@ -29,7 +32,9 @@ class VolumeCollectionView(PydanticView):
 
 class VolumeCollectionInspectView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             volumes_details_list = await volumes.get_volumes(
                 docker_session=session,
@@ -44,7 +49,10 @@ class VolumeCollectionInspectView(PydanticView):
 
 class VolumeInspectView(PydanticView):
     @manage_exceptions
-    async def get(self, volume_id: str, /) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def get(
+            self,
+            volume_id: str, /
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
             volume_details = await volumes.inspect_volume(
                 docker_session=session,
@@ -57,7 +65,10 @@ class VolumeInspectView(PydanticView):
             )
 
     @manage_exceptions
-    async def delete(self, volume_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def delete(
+            self,
+            volume_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await volumes.remove_volume(
                 docker_session=session,
@@ -72,7 +83,10 @@ class VolumeInspectView(PydanticView):
 
 class VolumeCreateView(PydanticView):
     @manage_exceptions
-    async def post(self, config: volumes_schemas.VolumeCreate) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            config: volumes_schemas.VolumeCreate
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await volumes.create_volume(docker_session=session, config=config.dict())
             return web.json_response(
@@ -84,7 +98,10 @@ class VolumeCreateView(PydanticView):
 
 class VolumePruneView(PydanticView):
     @manage_exceptions
-    async def post(self, filters: Mapping = None) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def post(
+            self,
+            filters: Mapping = None
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
             data = await volumes.prune_volumes(
                 docker_session=session,

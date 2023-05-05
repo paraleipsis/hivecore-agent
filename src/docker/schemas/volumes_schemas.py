@@ -3,7 +3,7 @@ from typing import Optional, Mapping
 
 
 class VolumeCreate(BaseModel):
-    Name: str
+    Id: str
     Driver: Optional[str]
     DriverOpts: Optional[Mapping]
     Labels: Optional[Mapping]

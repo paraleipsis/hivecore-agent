@@ -104,4 +104,3 @@ class SystemEventsView(PydanticView):
                     await ws.send_str(str(message))
         finally:
             await ws.close()
-            return ws
