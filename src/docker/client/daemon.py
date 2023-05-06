@@ -14,20 +14,29 @@ from docker.client.volumes import prune_volumes
 from collections import ChainMap
 
 
-def docker_events_subscriber(docker_session: Docker, **kwargs) -> ChannelSubscriber:
+def docker_events_subscriber(
+        docker_session: Docker,
+        **kwargs
+) -> ChannelSubscriber:
     events = DockerEvents(docker=docker_session)
     events_subscriber = events.subscribe(**kwargs)
+
     return events_subscriber
 
 
-async def get_system(docker_session: Docker) -> Mapping:
+async def get_system(
+        docker_session: Docker
+) -> Mapping:
     system = docker_session.system
     system_details = await system.info()
 
     return system_details
 
 
-async def prune_system(docker_session: Docker, volumes: bool = False) -> Mapping:
+async def prune_system(
+        docker_session: Docker,
+        volumes: bool = False
+) -> Mapping:
     images = await prune_images(docker_session=docker_session)
     containers = await prune_containers(docker_session=docker_session)
     networks = await prune_networks(docker_session=docker_session)
@@ -41,38 +50,36 @@ async def prune_system(docker_session: Docker, volumes: bool = False) -> Mapping
     return result
 
 
-async def get_system_df(docker_session: Docker) -> Mapping:
-    system_df = await docker_session._query_json("system/df", "GET")
+async def get_system_df(
+        docker_session: Docker
+) -> Mapping:
+    system_df = await docker_session._query_json(
+        "system/df",
+        "GET"
+    )
     return system_df
 
 
-async def docker_login(docker_session: Docker, credentials: Mapping) -> Mapping:
+async def docker_login(
+        docker_session: Docker,
+        credentials: Mapping
+) -> Mapping:
     credentials = json.dumps(credentials, sort_keys=True).encode("utf-8")
-    auth = await docker_session._query_json("auth", "POST", data=credentials)
+    auth = await docker_session._query_json(
+        "auth",
+        "POST",
+        data=credentials
+    )
+
     return auth
 
 
-async def get_version(docker_session: Docker) -> Mapping:
-    data = await docker_session._query_json("version", "GET")
+async def get_version(
+        docker_session: Docker
+) -> Mapping:
+    data = await docker_session._query_json(
+        "version",
+        "GET"
+    )
+
     return data
-
-
-
-
-
-
-# import  asyncio
-# from client import async_docker
-#
-#
-# async def main():
-#     async with async_docker.async_docker_session() as session:
-#         events_sub = docker_events_subscriber(docker_session=session)
-#         while True:
-#             message = await events_sub.get()
-#             if message is None:
-#                 break
-#             print(message)
-#         return None
-#
-# asyncio.run(main())

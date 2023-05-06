@@ -1,4 +1,7 @@
 aiodocker==0.21.0
-aiohttp==3.8.4
-pydantic~=1.10.6
 aiohttp-pydantic==1.12.2
+aiohttp==3.8.4
+asyncssh==2.13.1
+pydantic==1.10.7
+PyYAML==6.0
+trafaret==2.1.1

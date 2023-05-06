@@ -13,7 +13,9 @@ from modules.utils.exceptions_utils import manage_exceptions
 
 class SystemInfoView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             info = await daemon.get_system(
                 docker_session=session,
@@ -27,7 +29,9 @@ class SystemInfoView(PydanticView):
 
 class VersionView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             info = await daemon.get_version(
                 docker_session=session,
@@ -41,7 +45,9 @@ class VersionView(PydanticView):
 
 class SystemDataUsageView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             info = await daemon.get_system_df(
                 docker_session=session,
@@ -55,7 +61,10 @@ class SystemDataUsageView(PydanticView):
 
 class SystemPruneView(PydanticView):
     @manage_exceptions
-    async def post(self, volumes: bool = False) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def post(
+            self,
+            volumes: bool = False
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
             data = await daemon.prune_system(
                 docker_session=session,
@@ -88,7 +97,9 @@ class AuthView(PydanticView):
 
 class SystemEventsView(PydanticView):
     @manage_exceptions
-    async def get(self):
+    async def get(
+            self
+    ):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
 

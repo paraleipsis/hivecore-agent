@@ -13,7 +13,10 @@ from modules.utils.exceptions_utils import manage_exceptions
 
 class PluginCollectionView(PydanticView):
     @manage_exceptions
-    async def get(self, filters: Mapping = None) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self,
+            filters: Mapping = None
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             plugins_list = await plugins.list_plugins(
                 docker_session=session,
@@ -29,7 +32,9 @@ class PluginCollectionView(PydanticView):
 
 class PluginCollectionInspectView(PydanticView):
     @manage_exceptions
-    async def get(self) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[List[MutableMapping]]]:
         async with Docker() as session:
             plugins_details_list = await plugins.get_plugins(
                 docker_session=session,
@@ -44,7 +49,10 @@ class PluginCollectionInspectView(PydanticView):
 
 class PluginInspectView(PydanticView):
     @manage_exceptions
-    async def get(self, plugin_id: str, /) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+    async def get(
+            self,
+            plugin_id: str, /
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
         async with Docker() as session:
             plugin_details = await plugins.inspect_plugin(
                 docker_session=session,
@@ -57,7 +65,11 @@ class PluginInspectView(PydanticView):
             )
 
     @manage_exceptions
-    async def delete(self, plugin_id: str, /, force: bool = False) -> r200[schemas.GenericResponseModel[bool]]:
+    async def delete(
+            self,
+            plugin_id: str, /,
+            force: bool = False
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await plugins.remove_plugin(
                 docker_session=session,
@@ -73,14 +85,18 @@ class PluginInspectView(PydanticView):
 
 class PluginInstallView(PydanticView):
     @manage_exceptions
-    async def post(self, config: plugins_schemas.PluginInstall,
-                   remote: str, name: str = None) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            config: List[plugins_schemas.PluginInstall],
+            remote: str,
+            name: str = None
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await plugins.install_plugin(
                 docker_session=session,
                 remote=remote,
                 name=name,
-                config=config.dict()
+                config=config
             )
             return web.json_response(
                 data=schemas.GenericResponseModel(
@@ -91,7 +107,11 @@ class PluginInstallView(PydanticView):
 
 class PluginEnableView(PydanticView):
     @manage_exceptions
-    async def post(self, plugin_id: str, /, timeout: int = 0) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            plugin_id: str, /,
+            timeout: int = 0
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await plugins.enable_plugin(
                 docker_session=session,
@@ -107,7 +127,10 @@ class PluginEnableView(PydanticView):
 
 class PluginDisableView(PydanticView):
     @manage_exceptions
-    async def post(self, plugin_id: str, /) -> r200[schemas.GenericResponseModel[bool]]:
+    async def post(
+            self,
+            plugin_id: str, /
+    ) -> r200[schemas.GenericResponseModel[bool]]:
         async with Docker() as session:
             data = await plugins.disable_plugin(
                 docker_session=session,

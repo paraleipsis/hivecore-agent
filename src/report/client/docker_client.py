@@ -49,7 +49,7 @@ async def get_docker_df() -> MutableMapping:
 
 
 async def get_docker_version() -> MutableMapping:
-    response = await get_request(url='http://127.0.0.1:8080/docker/version')
+    response = await get_request(url='http://127.0.0.1:8080/docker/system/version')
     version = format_response(key='version', response=response)
     return version
 

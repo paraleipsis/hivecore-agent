@@ -62,5 +62,5 @@ def setup_routes(app):
     app.router.add_view('/docker/system/df', system_views.SystemDataUsageView)
     app.router.add_view('/docker/system/prune', system_views.SystemPruneView)
     app.router.add_view('/docker/system/events', system_views.SystemEventsView)
-    app.router.add_view('/docker/version', system_views.VersionView)
-    app.router.add_view('/docker/auth', system_views.AuthView)
+    app.router.add_view('/docker/system/version', system_views.VersionView)
+    app.router.add_view('/docker/system/auth', system_views.AuthView)
