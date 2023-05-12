@@ -83,3 +83,14 @@ async def get_version(
     )
 
     return data
+
+
+async def ping(
+        docker_session: Docker
+) -> Mapping:
+    data = await docker_session._query_json(
+        "_ping",
+        "GET"
+    )
+
+    return data

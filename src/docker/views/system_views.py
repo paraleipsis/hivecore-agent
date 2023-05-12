@@ -115,3 +115,19 @@ class SystemEventsView(PydanticView):
                     await ws.send_str(str(message))
         finally:
             await ws.close()
+
+
+class PingView(PydanticView):
+    @manage_exceptions
+    async def get(
+            self
+    ) -> r200[schemas.GenericResponseModel[MutableMapping]]:
+        async with Docker() as session:
+            info = await daemon.ping(
+                docker_session=session,
+            )
+            return web.json_response(
+                data=schemas.GenericResponseModel(
+                    data=info
+                ).dict()
+            )

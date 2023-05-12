@@ -73,7 +73,7 @@ async def install_plugin(
     }
     config = json.dumps([p.dict() for p in config], sort_keys=True).encode("utf-8")
     await docker_session._query_json(
-        "plugins/pull".format(name=name),
+        "plugins/pull",
         method="POST",
         params=params,
         data=config

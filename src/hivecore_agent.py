@@ -3,7 +3,7 @@ from typing import Tuple
 
 from aiohttp import web
 from core.config.utils import load_config
-from core.startup_tasks.run_rssh import run_rssh_server
+from core.startup_tasks.run_rssh import run_rssh_server, dispose_rssh_server
 from core.router import init_routes
 
 
@@ -16,6 +16,7 @@ def init() -> Tuple[web.Application, str, int]:
     app = web.Application()
 
     app.on_startup.append(run_rssh_server)
+    app.on_shutdown.append(dispose_rssh_server)
 
     init_routes(app)
 

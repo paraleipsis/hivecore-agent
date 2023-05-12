@@ -28,8 +28,8 @@ def setup_routes(app):
     app.router.add_view('/swarm/tasks', tasks_views.TaskCollectionView)
     app.router.add_view('/swarm/tasks/inspect', tasks_views.TaskCollectionInspectView)
 
-    app.router.add_view('/swarm/tasks/{service_id}', tasks_views.TaskInspectView)
-    app.router.add_view('/swarm/tasks/{service_id}/logs', tasks_views.TaskLogsView)
+    app.router.add_view('/swarm/tasks/{task_id}', tasks_views.TaskInspectView)
+    app.router.add_view('/swarm/tasks/{task_id}/logs', tasks_views.TaskLogsView)
 
     # nodes
     app.router.add_view('/swarm/nodes', nodes_views.NodeCollectionView)

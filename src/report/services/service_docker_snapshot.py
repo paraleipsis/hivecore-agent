@@ -1,6 +1,7 @@
 from typing import Generator
 
 from logger.logs import logger
+from modules.client.request_handler import ClientRequestHandler
 from modules.tasks.task_group import GatheringTaskGroup
 from report.utils import format_tg_results, swarm_check
 from report.client import swarm_client, docker_client
@@ -29,9 +30,10 @@ async def get_docker_snapshot_on_event() -> Generator[
     None
 ]:
     try:
-        async for _ in docker_client.ws_docker_events():
-            snapshot = await get_docker_snapshot()
-            yield snapshot
+        async with ClientRequestHandler() as client:
+            async for _ in docker_client.ws_docker_events(client=client):
+                snapshot = await get_docker_snapshot()
+                yield snapshot
     except Exception as exc:
         logger['debug'].debug(
             f"Exception in docker snapshot request:\n{repr(exc)}"
@@ -39,15 +41,16 @@ async def get_docker_snapshot_on_event() -> Generator[
 
 
 async def create_docker_snapshot() -> schemas_docker_snapshot.DockerObjectsSnapshot:
-    async with GatheringTaskGroup() as tg:
-        tg.create_task(docker_client.get_docker_images())
-        tg.create_task(docker_client.get_docker_containers())
-        tg.create_task(docker_client.get_docker_volumes())
-        tg.create_task(docker_client.get_docker_networks())
-        tg.create_task(docker_client.get_docker_system())
-        tg.create_task(docker_client.get_docker_df())
-        tg.create_task(docker_client.get_docker_version())
-        tg.create_task(docker_client.get_docker_plugins())
+    async with ClientRequestHandler() as client:
+        async with GatheringTaskGroup() as tg:
+            tg.create_task(docker_client.get_docker_images(client=client))
+            tg.create_task(docker_client.get_docker_containers(client=client))
+            tg.create_task(docker_client.get_docker_volumes(client=client))
+            tg.create_task(docker_client.get_docker_networks(client=client))
+            tg.create_task(docker_client.get_docker_system(client=client))
+            tg.create_task(docker_client.get_docker_df(client=client))
+            tg.create_task(docker_client.get_docker_version(client=client))
+            tg.create_task(docker_client.get_docker_plugins(client=client))
 
     try:
         results = format_tg_results(
@@ -71,13 +74,14 @@ async def create_docker_snapshot() -> schemas_docker_snapshot.DockerObjectsSnaps
 
 
 async def create_swarm_snapshot() -> schemas_docker_snapshot.SwarmObjectsSnapshot:
-    async with GatheringTaskGroup() as tg:
-        tg.create_task(swarm_client.get_swarm())
-        tg.create_task(swarm_client.get_swarm_services())
-        tg.create_task(swarm_client.get_swarm_tasks())
-        tg.create_task(swarm_client.get_swarm_configs())
-        tg.create_task(swarm_client.get_swarm_secrets())
-        tg.create_task(swarm_client.get_swarm_nodes())
+    async with ClientRequestHandler() as client:
+        async with GatheringTaskGroup() as tg:
+            tg.create_task(swarm_client.get_swarm(client=client))
+            tg.create_task(swarm_client.get_swarm_services(client=client))
+            tg.create_task(swarm_client.get_swarm_tasks(client=client))
+            tg.create_task(swarm_client.get_swarm_configs(client=client))
+            tg.create_task(swarm_client.get_swarm_secrets(client=client))
+            tg.create_task(swarm_client.get_swarm_nodes(client=client))
 
     try:
         results = format_tg_results(

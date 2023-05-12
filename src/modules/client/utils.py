@@ -3,7 +3,9 @@ import json
 from typing import Optional, Mapping, Any
 
 
-def httpize(d: Optional[Mapping]) -> Optional[Mapping[str, Any]]:
+def httpize(
+        d: Optional[Mapping]
+) -> Optional[Mapping[str, Any]]:
     if d is None:
         return None
     converted = {}
@@ -13,4 +15,5 @@ def httpize(d: Optional[Mapping]) -> Optional[Mapping[str, Any]]:
         if not isinstance(v, str):
             v = json.dumps(v)
         converted[k] = v
+
     return converted

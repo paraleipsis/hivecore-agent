@@ -13,7 +13,8 @@ CONFIG_TRAFARET = t.Dict(
         'ssh_authorized_client_keys_path': t.String,
         'ssh_encoding': t.String,
         'ssh_connection_timeout': t.Int(),
-        'uuid': UUID
+        'uuid': UUID,
+        'docker_ping': t.String,
     }
 )
 

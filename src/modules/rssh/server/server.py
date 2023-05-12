@@ -71,21 +71,16 @@ class ReverseSSHServer:
             ReverseSSHServerFactory.callbacks[request_type][resource] = callback
 
     async def __connect(self):
-        try:
-            conn = await asyncssh.connect_reverse(
-                host=self.remote_host,
-                port=self.remote_port,
-                server_host_keys=self._server_host_keys,
-                authorized_client_keys=self._authorized_client_keys,
-                encoding=self._encoding,
-                server_factory=ReverseSSHServerFactory,
-            )
+        conn = await asyncssh.connect_reverse(
+            host=self.remote_host,
+            port=self.remote_port,
+            server_host_keys=self._server_host_keys,
+            authorized_client_keys=self._authorized_client_keys,
+            encoding=self._encoding,
+            server_factory=ReverseSSHServerFactory,
+        )
 
-            await conn.wait_closed()
-        except (OSError, asyncssh.Error) as exc:
-            logger['error'].error(
-                f"Reverse SSH connection failed: {exc}"
-            )
+        await conn.wait_closed()
 
     async def start(self):
         """Make an outbound connection and then become an SSH server on it"""
@@ -93,7 +88,6 @@ class ReverseSSHServer:
         logger['info'].info(
             f"Reverse SSH Server - Listening on port {self.remote_port}"
         )
-
         if self.connection_timeout is not None:
             while True:
                 try:

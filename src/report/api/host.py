@@ -11,7 +11,7 @@ from report.services.service_docker_snapshot import get_docker_snapshot, get_doc
 class HostDockerSnapshotView(PydanticView):
     @manage_exceptions
     async def get(
-            self
+            self,
     ) -> r200[schemas.GenericResponseModel[DockerSnapshot]]:
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)

@@ -64,3 +64,4 @@ def setup_routes(app):
     app.router.add_view('/docker/system/events', system_views.SystemEventsView)
     app.router.add_view('/docker/system/version', system_views.VersionView)
     app.router.add_view('/docker/system/auth', system_views.AuthView)
+    app.router.add_view('/docker/system/ping', system_views.PingView)

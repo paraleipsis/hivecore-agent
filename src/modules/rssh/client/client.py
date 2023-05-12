@@ -2,7 +2,8 @@ import asyncio
 import gzip
 import json
 import sys
-from typing import MutableMapping, Union
+from asyncio import AbstractEventLoop
+from typing import Union, Dict
 from uuid import UUID
 
 import asyncssh
@@ -56,25 +57,39 @@ class ReverseSSHClient:
         self.reuse_port = reuse_port
         self.max_packet_size = max_packet_size
 
+        self.listener = None
+
         self.publisher = publisher  # fork
         self.pubsub_channel = pubsub_channel  # fork
 
-        self._active_connections: MutableMapping[
-            UUID, MutableMapping[str, Union[asyncssh.SSHTCPChannel, asyncssh.SSHTCPSession]]
+        self._active_connections: Dict[
+            UUID, Dict[str, Union[
+                asyncssh.SSHTCPChannel,
+                asyncssh.SSHTCPSession,
+                asyncssh.SSHClientConnection
+            ]]
         ] = {}
-        self._loop = asyncio.new_event_loop()
 
-        asyncio.set_event_loop(self._loop)
+        self._loop = None
 
-    def start(self) -> None:
+    def run_rssh_forever(
+            self,
+            event_loop: AbstractEventLoop = None
+    ) -> None:
         """Run the Reverse SSH Client Listener in the event loop indefinitely until interrupt."""
 
         try:
-            logger['debug'].debug(
-                'Starting Reverse SSH Client ...'
+            logger['info'].info(
+                'Starting Reverse SSH Client forever ...'
             )
 
-            self._loop.run_until_complete(self.__listen())
+            if event_loop is not None:
+                self._loop = event_loop
+            else:
+                self._loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(self._loop)
+
+            self._loop.run_until_complete(self.start_listener())
         except (OSError, asyncssh.Error) as exc:
             logger['error'].error(
                 f"Error starting client: {str(exc)}"
@@ -85,6 +100,19 @@ class ReverseSSHClient:
         self._loop.run_forever()
 
         return None
+
+    async def stop_listener(self):
+        logger['info'].info(
+            f"Shutting down Reverse SSH Client"
+        )
+
+        self.disconnect_all()
+        self.listener.close()
+        await self.listener.wait_closed()
+
+        if self._loop is not None:
+            self._loop.stop()
+            self._loop.close()
 
     async def __open_connection(self, conn: asyncssh.SSHClientConnection) -> None:
         """Create a TCP Channel and a TCP Session objects.
@@ -110,8 +138,8 @@ class ReverseSSHClient:
             chan, session = await conn.create_connection(
                 session_factory=ReverseSSHClientSession,
                 remote_host='',
-                remote_port=int(self.local_port),
-                max_pktsize=int(self.max_packet_size)
+                remote_port=self.local_port,
+                max_pktsize=self.max_packet_size
             )
 
             identification_request = await session._identify()
@@ -121,7 +149,7 @@ class ReverseSSHClient:
             #  the node agent on deployment. For each next request we need to pass in required method a specific
             #  session (by a host UUID as Path param)
 
-            uuid = identification_request['response']['UUID']
+            uuid = UUID(identification_request['response']['UUID'])
 
             self._active_connections[uuid] = {
                 'connection': conn,
@@ -150,15 +178,19 @@ class ReverseSSHClient:
                 f"The connection was not established correctly: {str(exc)}"
             )
 
-    async def __listen(self) -> None:
+    async def start_listener(self) -> None:
         """Run the Reverse SSH Client Listener.
 
            After connection with a host create the :class:`SSHClientConnection` object.
 
         """
 
-        await asyncssh.listen_reverse(
-            port=int(self.local_port),
+        logger['info'].info(
+            'Starting Reverse SSH Client ...'
+        )
+
+        self.listener = await asyncssh.listen_reverse(
+            port=self.local_port,
             client_keys=self.client_keys,
             known_hosts=None,
             reuse_port=True,
@@ -177,6 +209,14 @@ class ReverseSSHClient:
 
         return None
 
+    def disconnect_all(self) -> None:
+        """Close all SSH Channels."""
+
+        for client in self._active_connections.values():
+            client['connection'].close()
+
+        return None
+
     def broadcast(self, message) -> None:
         """Send a message to all SSH channels.
 
@@ -190,9 +230,17 @@ class ReverseSSHClient:
 
         return None
 
+    def get_connection(self, host_uuid: UUID) -> Dict[str, Union[
+        asyncssh.SSHTCPChannel,
+        asyncssh.SSHTCPSession,
+        asyncssh.SSHClientConnection
+    ]]:
+        connection = self._active_connections[host_uuid]
+        return connection
+
     async def publish_host(
             self,
-            host_uuid: str,
+            host_uuid: UUID,
             host_connection: asyncssh.SSHClientConnection,
             host_channel: asyncssh.SSHTCPChannel,
             host_session: asyncssh.SSHTCPSession
