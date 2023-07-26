@@ -1,0 +1,4 @@
+UUID: changeme
+TOKEN: changeme
+
+DOCKER_PING_URL: 'docker/system/ping'

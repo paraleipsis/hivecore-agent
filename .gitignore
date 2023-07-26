@@ -20,5 +20,3 @@ docs_build
 venv
 docs.zip
 archive.zip
-src/authorized_keys
-src/key

@@ -1,9 +1,7 @@
 from typing import Any, Generator, MutableMapping
 
 from modules.client.request_handler import ClientRequestHandler
-
-
-# TODO: add exceptions handling and response codes
+from core.server_config import SERVER_URL
 
 
 async def get_resource(
@@ -13,7 +11,7 @@ async def get_resource(
 ) -> MutableMapping:
     async with ClientRequestHandler() as client:
         response = await client.get_request(
-            url=target_resource,
+            url=f'{SERVER_URL}/{target_resource}',
             params=params,
             data=data
         )
@@ -28,7 +26,7 @@ async def post_resource(
 ) -> MutableMapping:
     async with ClientRequestHandler() as client:
         response = await client.post_request(
-            url=target_resource,
+            url=f'{SERVER_URL}/{target_resource}',
             params=params,
             data=data
         )
@@ -43,7 +41,7 @@ async def delete_resource(
 ) -> MutableMapping:
     async with ClientRequestHandler() as client:
         response = await client.delete_request(
-            url=target_resource,
+            url=f'{SERVER_URL}/{target_resource}',
             params=params,
             data=data
         )
@@ -57,7 +55,7 @@ async def ws_resource(
 ) -> Generator[MutableMapping, MutableMapping, None]:
     async with ClientRequestHandler() as client:
         async for msg in client.establish_websocket_conn(
-            url=target_resource,
-            params=params,
+                url=f'{SERVER_URL}/{target_resource}',
+                params=params,
         ):
             yield msg

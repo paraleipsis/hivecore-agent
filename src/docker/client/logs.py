@@ -65,7 +65,8 @@ class DockerLogs:
                 params=params,
                 timeout=0
             ) as self.response:
-                assert self.response is not None
+                if self.response is None:
+                    return None
                 while True:
                     msg = await self.response.content.readline()
                     if not msg:

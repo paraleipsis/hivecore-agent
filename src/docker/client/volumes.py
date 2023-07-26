@@ -37,7 +37,7 @@ async def get_volumes(
         docker_session: Docker
 ) -> List[Mapping]:
     volumes = docker_session.volumes
-    volumes, warnings = itemgetter('Volumes', 'Warnings')(await volumes.list())
+    volumes, _ = itemgetter('Volumes', 'Warnings')(await volumes.list())
     volumes_details_list = [
         await DockerVolume(
             docker=docker_session,

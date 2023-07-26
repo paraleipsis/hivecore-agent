@@ -1,0 +1,19 @@
+DOCKER_ENDPOINT: 'docker'
+
+DOCKER_IMAGES_INSPECT: 'images/inspect'
+DOCKER_CONTAINERS_INSPECT: 'containers/inspect'
+DOCKER_VOLUMES_INSPECT: 'volumes/inspect'
+DOCKER_NETWORKS_INSPECT: 'networks/inspect'
+DOCKER_SYSTEM: 'system'
+DOCKER_SYSTEM_DF: 'df'
+DOCKER_SYSTEM_VERSION: 'version'
+DOCKER_SYSTEM_EVENTS: 'events'
+DOCKER_PLUGINS_INSPECT: 'plugins/inspect'
+
+SWARM_ENDPOINT: 'swarm'
+
+SWARM_SERVICES_INSPECT: 'services/inspect'
+SWARM_TASKS_INSPECT: 'tasks/inspect'
+SWARM_CONFIGS_INSPECT: 'configs/inspect'
+SWARM_SECRETS_INSPECT: 'secrets/inspect'
+SWARM_NODES_INSPECT: 'nodes/inspect'

@@ -1,0 +1,3 @@
+SSH_PRIVATE_KEY_PATH: '.ssh/id_rsa'
+SSH_PUBLIC_KEY_PATH: '.ssh/id_rsa.pub'
+SSH_AUTHORIZED_KEYS_PATH: '.ssh/authorized_keys'

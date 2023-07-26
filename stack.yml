@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  agent:
+    image: paraleipsis/hivecore-agent
+    command: python3 src/core/hivecore_agent.py
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # put configs path
+      - /hivecore-agent/configs:/hivecore-agent/configs
+    deploy:
+      mode: global
